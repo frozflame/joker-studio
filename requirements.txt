@@ -1,0 +1,5 @@
+volkanic
+joker
+pymediainfo
+pillow
+six

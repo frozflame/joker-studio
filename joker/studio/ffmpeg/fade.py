@@ -2,65 +2,58 @@
 # coding: utf-8
 
 import argparse
+import pathlib
 
+from joker.studio.common import utils
 from joker.studio.common.info import MediaInfo
 from joker.studio.common.utils import CommandOptionDict
-from joker.studio.ffmpeg.filters import af_fade
+from joker.studio.ffmpeg.filters import af_fade, vf_fade
 
 
-# TODO: vf_fade
-
-
-def mkcod_whole_audio_fade(path, fadein, fadeout, outpath):
+def mkcod_fade(path, outpath, vfadein=0, vfadeout=0, afadein=0, afadeout=0):
     xinfo = MediaInfo(path)
     duration = xinfo.get_audio_duration()
-    afade = af_fade(0, duration, fadein, fadeout)
     cod = CommandOptionDict([
         ('i', path),
-        ('af', afade),
     ])
+
+    if vfadein or vfadeout:
+        cod['vf'] = vf_fade(0, duration, vfadein, vfadeout)
+    else:
+        cod['c:v'] = 'copy'
+
+    if afadein or afadeout:
+        cod['af'] = af_fade(0, duration, afadein, afadeout)
+    else:
+        cod['c:a'] = 'copy'
+
     return cod('ffmpeg', outpath)
-
-
-def _convert_a_file(path, ns):
-    import os
-    ext = '.{}.{}'.format(ns.label or '', ns.fmt)
-    ext = ext.replace('..', '.')
-    ext = ext.replace('..', '.')
-    outpath = os.path.splitext(path)[0] + ext
-    cod = mkcod_whole_audio_fade(path, ns.a, ns.b, outpath)
-    cod.run(ns.dry)
 
 
 def run(prog=None, args=None):
     desc = 'add fade-in and fade-out to audios'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    utils.add_dry_option(parser)
 
     parser.add_argument(
-        '-a', type=int, default=4, help='fade in length in second')
+        '-a', type=int, nargs=2, metavar=('IN', 'OUT'),
+        help='audio fade-in and fade-out lengths, in sec')
 
     parser.add_argument(
-        '-b', type=int, default=5, help='fade out length in second')
+        '-v', type=int, nargs=2, metavar=('IN', 'OUT'),
+        help='video fade-in and fade-out lengths, in sec')
 
     parser.add_argument(
-        '-f', '--format', dest='fmt',
-        default='wav', help='out audio format')
+        'paths', metavar='PATH', nargs='+', help='input video files')
 
-    parser.add_argument(
-        '-l', '--label', help='out file label')
-
-    parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
-
-    parser.add_argument(
-        'paths', metavar='PATH', nargs='+', help='an audio file')
     ns = parser.parse_args(args)
-
-    if ns.label is None:
-        ns.label = 'F{}F{}'.format(ns.a, ns.b)
-    for p in ns.paths:
-        _convert_a_file(p, ns)
+    for path in ns.paths:
+        px = pathlib.Path(path)
+        outpath = px.with_suffix('.fade' + px.suffix)
+        vfi, vfo = ns.v or (0, 0)
+        afi, afo = ns.a or (0, 0)
+        cod = mkcod_fade(path, outpath, vfi, vfo, afi, afo)
+        cod.run(ns.dry)
 
 
 if __name__ == '__main__':

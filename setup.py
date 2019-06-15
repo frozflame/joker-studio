@@ -51,7 +51,7 @@ config = {
     'packages': find_packages(exclude=['test_*']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
-    'entry_points': {'console_scripts': ['dio = joker.studio.main:registry'], },
+    'entry_points': {'console_scripts': ['dio=joker.studio.main:registry']},
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',

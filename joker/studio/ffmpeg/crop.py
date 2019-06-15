@@ -30,6 +30,7 @@ def mkcod_crop(path, outpath, head, tail, *margins):
 def run(prog=None, args=None):
     desc = 'rename files'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    utils.add_dry_option(parser)
 
     parser.add_argument(
         '-c', '--crop', type=float, nargs=4,
@@ -41,7 +42,6 @@ def run(prog=None, args=None):
         metavar=('head', 'tail'),
         help='trim media in time dimension')
 
-    utils.add_dry_option(parser)
     parser.add_argument('paths', metavar='PATH', nargs='+', help='files')
     ns = parser.parse_args(args)
     head, tail = ns.trim or (0, 0)

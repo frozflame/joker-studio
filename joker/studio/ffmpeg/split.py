@@ -45,6 +45,7 @@ def uniform_split(ns):
 def run(prog=None, args=None):
     desc = 'split a video uniformly'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    utils.add_dry_option(parser)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -54,10 +55,7 @@ def run(prog=None, args=None):
         '-n', '--num', type=int,
         help='number of segments to split into')
 
-    parser.add_argument(
-        'path', metavar='string', help='a video')
-
-    utils.add_dry_option(parser)
+    parser.add_argument('path', help='a video')
     ns = parser.parse_args(args)
     print(vars(ns))
     for cod in uniform_split(ns):

@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 namespace = 'joker'
 package_name = 'studio'
-description = ''
+description = 'CLI tools for media file editing, wrapping FFmpeg and others'
 
 
 def read(filename):
@@ -44,7 +44,7 @@ config = {
     'version': version_find(),
     'description': '' + description,
     'keywords': '',
-    'url': 'example.com',
+    'url': 'https://github.com/frozflame/joker-studio',
     'author': 'anonym',
     'author_email': 'anonym@example.com',
     'license': "GNU General Public License (GPL)",

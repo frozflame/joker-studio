@@ -1,69 +1,66 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-
 import argparse
 import math
+import pathlib
 
-import os
+from joker.studio.common import utils
 from joker.studio.common.info import MediaInfo
-from joker.studio.common.utils import CommandOptionDict
 
 
-def _labelfunc(seconds, inminute=False):
-    seconds = int(seconds)
-    m, s = divmod(seconds, 60)
+def _labelfunc(startpos, duration, step):
+    m, s = divmod(startpos, 60)
     h, m = divmod(m, 60)
-    if inminute:
-        return 'M{:02}{:02}'.format(h, m)
-    else:
-        return '{:02}{:02}{:02}'.format(h, m, s)
+    hh = '{:02}'.format(h) if duration >= 3600 else ''
+    mm = '{:02}'.format(m)
+    ss = '{:02}'.format(s) if step % 60 else 'M'
+    return hh + mm + ss
 
 
-def uniform_split(path, step, length):
+def uniform_split(ns):
     """
-    :param path: (str)
-    :param step: (int) in second
-    :param length: (int) in second
+    :param ns: an argparse.Namespace obj
     :return: a generator of CommandOptionDict instances
     """
-    xinfo = MediaInfo(path)
-    duration = math.ceil(xinfo.get_audio_duration())
-    inminute = not (step % 60 or length % 60)
+    xinfo = MediaInfo(ns.path)
+    duration = math.ceil(xinfo.get_video_duration())
+    step = duration / ns.num if ns.num else ns.step
+    step = math.ceil(step)
+    px = pathlib.Path(ns.path)
+
     for startpos in range(0, duration, step):
-        cod = CommandOptionDict([
-            ('i', path),
+        cod = utils.CommandOptionDict([
+            ('i', ns.path),
             ('ss', startpos),
-            ('t', length),
+            ('t', step),
             ('c:v', 'copy'),
             ('c:a', 'copy'),
         ])
-        bx = os.path.splitext(path)
-        label = '.Split' + _labelfunc(startpos, inminute)
-        outpath = bx[0] + label + bx[1]
-        yield cod('ffmpeg', outpath)
+
+        suffix = '._split_' + _labelfunc(startpos, duration, step) + px.suffix
+        yield cod('ffmpeg', px.with_suffix(suffix))
 
 
-# TODO: add 2nd mod: given num of pieces, divide evenly
 def run(prog=None, args=None):
     desc = 'split a video uniformly'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
 
-    parser.add_argument(
-        '-s', '--step', type=int, default=240, help='in second')
-
-    parser.add_argument(
-        '-l', '--length', type=int, default=240, help='in second')
-
-    parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        '-s', '--step', type=int, default=240,
+        help='length of each segment, in second')
+    group.add_argument(
+        '-n', '--num', type=int,
+        help='number of segments to split into')
 
     parser.add_argument(
         'path', metavar='string', help='a video')
 
+    utils.add_dry_option(parser)
     ns = parser.parse_args(args)
-    for cod in uniform_split(ns.path, ns.step, ns.length):
+    print(vars(ns))
+    for cod in uniform_split(ns):
         cod.run(ns.dry)
 
 

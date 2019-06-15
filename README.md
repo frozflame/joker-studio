@@ -25,3 +25,17 @@ Convert multiple `.ts` videos to `.mp4`:
 
     dio conv video1.ts video2.ts
 
+Extract audio from video as `.mp3`:
+
+    dio conv -f mp3 -f myvideo.mp4
+
+
+### Split
+
+Split a video into 4 segments of equal duration:
+
+    dio split -n 4 myvideo.mp4
+
+Split into segments, each (but the last one) of duration 5 minutes (300 seconds):
+
+    dio split -s 300 myvideo.mp4

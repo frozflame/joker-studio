@@ -11,6 +11,8 @@ entries = {
     'joker.studio.ffmpeg.thumbnail': 'thumbnail',
     'joker.studio.ffmpeg.thumbnail:run_poster': 'poster',
     'joker.studio.misc.avatar': 'avatar',
+    'joker.studio.misc.rename': 'ren',
+    'joker.studio.misc.rename:run_rens': 'rens',
 }
 
 registry = CommandRegistry(entries)

@@ -62,6 +62,8 @@ config = {
     ],
     # ensure copy static file to runtime directory
     'include_package_data': True,
+    'long_description': read('README.md'),
+    'long_description_content_type': "text/markdown",
 }
 
 if namespace:

@@ -7,19 +7,19 @@ import sys
 
 from joker.cast.syntax import printerr
 
-from joker.studio.common.utils import CommandOptionDict
+from joker.studio.common import utils
 
 
 def mkcod_image_convert(path, outpath):
     cmd = 'convert'
     if sys.platform.startswith('win'):
         cmd = 'imagemagick'
-    cod = CommandOptionDict()
+    cod = utils.CommandOptionDict()
     return cod(cmd, path, outpath)
 
 
 def mkcod_convert_ts_mp4(path, outpath):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('c:v', 'libx264'),
         ('c:a', 'copy'),
@@ -29,7 +29,7 @@ def mkcod_convert_ts_mp4(path, outpath):
 
 
 def mkcod_convert_gif_mp4(path, outpath):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('movflags', 'faststart'),
         ('pix_fmt', 'yuv420p'),
@@ -39,7 +39,7 @@ def mkcod_convert_gif_mp4(path, outpath):
 
 
 def mkcod_convert_to_mp3(path, outpath):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('c:a', 'libmp3lame'),
     ])
@@ -70,6 +70,8 @@ def convert_a_file(path, ns):
 def run(prog=None, args=None):
     desc = 'convert audio/video format'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    utils.add_dry_option(parser)
+
     parser.add_argument(
         '-f', '--format', dest='fmt', choices=_all_formats,
         default='mp4', help='out audio/video format')
@@ -80,6 +82,7 @@ def run(prog=None, args=None):
 
     parser.add_argument(
         'paths', metavar='PATH', nargs='+', help='an audio/video file')
+
     ns = parser.parse_args(args)
     for p in ns.paths:
         try:

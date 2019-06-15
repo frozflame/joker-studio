@@ -4,12 +4,12 @@
 import argparse
 import os
 
-from joker.studio.common.utils import CommandOptionDict
+from joker.studio.common import utils
 from joker.studio.ffmpeg.filters import vf_subtitle
 
 
 def mkcod_subtitle(path, subpath, styles, outpath):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('vf', vf_subtitle(subpath, styles)),
     ])
@@ -54,18 +54,15 @@ _styles = [
 def run(prog=None, args=None):
     desc = 'burn subtitle into a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
-
-    parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
-
-    parser.add_argument('path', metavar='PATH', help='a video file')
+    utils.add_dry_option(parser)
 
     parser.add_argument(
         '-e', '--ext', default='mp4', help='output file extension')
 
     parser.add_argument(
         '-s', '--sub', metavar='PATH', help='an SRT file')
+
+    parser.add_argument('path', metavar='PATH', help='a video file')
     ns = parser.parse_args(args)
 
     pstem, ext = os.path.splitext(ns.path)

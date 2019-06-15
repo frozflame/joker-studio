@@ -7,11 +7,11 @@ import pathlib
 
 from joker.cast.syntax import printerr
 
-from joker.studio.common.utils import CommandOptionDict
+from joker.studio.common import utils
 
 
 def mkcod_video_poster(path, outpath, pos):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('ss', pos),
         ('vframes', 1),
@@ -20,7 +20,7 @@ def mkcod_video_poster(path, outpath, pos):
 
 
 def mkcod_pipe_thumbnail(path, pos, w, h):
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('ss', pos),
         ('vframes', 1),
@@ -33,7 +33,7 @@ def mkcod_pipe_thumbnail(path, pos, w, h):
 
 def mkcod_video_thumbnail(path, outpath, tspan, count=None, size=None):
     fps = 1 / float(tspan)
-    cod = CommandOptionDict([
+    cod = utils.CommandOptionDict([
         ('i', path),
         ('vf', 'fps={}'.format(fps)),
     ])
@@ -90,6 +90,7 @@ def run_poster(prog=None, args=None):
 def run(prog=None, args=None):
     desc = 'generate thumbnail images from a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    utils.add_dry_option(parser)
 
     parser.add_argument(
         '-t', '--tspan', type=int, default=60,
@@ -102,14 +103,9 @@ def run(prog=None, args=None):
         '-l', '--label', help='output file label')
 
     parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
-
-    parser.add_argument(
         'paths', metavar='PATH', nargs='+', help='an audio file')
 
     ns = parser.parse_args(args)
     for p in ns.paths:
         make_poster(p, ns)
-
 

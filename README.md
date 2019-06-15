@@ -3,7 +3,7 @@ joker-studio
 
 CLI tools for media file editing, wrapping FFmpeg and others
 
-Install with `pip`:
+Install with `pip` (add `sudo` if necessary):
 
     python3 -m pip install joker-studio
 

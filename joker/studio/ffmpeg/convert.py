@@ -77,10 +77,6 @@ def run(prog=None, args=None):
         default='mp4', help='out audio/video format')
 
     parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
-
-    parser.add_argument(
         'paths', metavar='PATH', nargs='+', help='an audio/video file')
 
     ns = parser.parse_args(args)

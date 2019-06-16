@@ -7,6 +7,7 @@ Install with `pip` (add `sudo` if necessary):
 
     python3 -m pip install joker-studio
 
+
 ### Crop
 
 Example:

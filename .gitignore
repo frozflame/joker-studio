@@ -49,8 +49,10 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/todo.txt
 
 # PyBuilder
 target/
 
 .sass-cache
+

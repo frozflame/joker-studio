@@ -2,10 +2,10 @@
 # coding: utf-8
 
 import argparse
+import hashlib
 import os
 import pathlib
 import re
-import hashlib
 
 from joker.studio.common.info import MediaInfo
 
@@ -20,9 +20,7 @@ extcorrection = {
 
 extmap = {
     'audio': ['.mp3', '.wav', '.aac', '.ogg', '.wma', '.flac'],
-    'image': [
-        '.jpg', '.bmp', '.png', '.png_large', '.jpg_large', '.gif',
-    ],
+    'image': ['.jpg', '.bmp', '.png', '.png_large', '.jpg_large', '.gif'],
     'video': ['.mp4', '.mkv', '.flv', '.wmv', '.mov', '.rmvb', '.ts'],
 }
 

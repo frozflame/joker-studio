@@ -47,4 +47,10 @@ Add 10 sec audio fade-in, 6 sec video fade-in, 4 sec video fade-out
 
     dio fade -a 10 0 -v 6 4 myvideo.mp4
 
- 
+
+### Burn subtitle
+
+This command generates a video with hard subtitle named `myvideo.wSub.mp4`
+
+    dio sub -s myvideo.english.srt myvideo.mp4
+      

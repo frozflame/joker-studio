@@ -8,6 +8,7 @@ entries = {
     'joker.studio.ffmpeg.fade': 'fade',
     'joker.studio.ffmpeg.split': 'split',
     'joker.studio.ffmpeg.convert': 'conv',
+    'joker.studio.ffmpeg.subtitle': 'sub',
     'joker.studio.ffmpeg.thumbnail': 'thumbnail',
     'joker.studio.ffmpeg.thumbnail:run_poster': 'poster',
     'joker.studio.misc.avatar': 'avatar',

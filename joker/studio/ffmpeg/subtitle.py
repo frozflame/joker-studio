@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import argparse
-import os
+import pathlib
 
 from joker.studio.common import utils
 from joker.studio.ffmpeg.filters import vf_subtitle
@@ -11,6 +11,7 @@ from joker.studio.ffmpeg.filters import vf_subtitle
 def mkcod_subtitle(path, subpath, styles, outpath):
     cod = utils.CommandOptionDict([
         ('i', path),
+        ('c:a', 'copy'),
         ('vf', vf_subtitle(subpath, styles)),
     ])
     return cod('ffmpeg', outpath)
@@ -55,21 +56,13 @@ def run(prog=None, args=None):
     desc = 'burn subtitle into a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
-
-    parser.add_argument(
-        '-e', '--ext', default='mp4', help='output file extension')
-
-    parser.add_argument(
-        '-s', '--sub', metavar='PATH', help='an SRT file')
-
+    parser.add_argument('-s', '--sub', metavar='PATH', help='an SRT file')
     parser.add_argument('path', metavar='PATH', help='a video file')
     ns = parser.parse_args(args)
-
-    pstem, ext = os.path.splitext(ns.path)
-    if ns.sub is None:
-        ns.sub = pstem + '.srt'
-    outpath = pstem + '.wSub.' + ns.ext.replace('.', '')
-    cod = mkcod_subtitle(ns.path, ns.sub, _styles, outpath)
+    px = pathlib.Path(ns.path)
+    subpath = ns.sub or px.with_suffix('.srt')
+    outpath = px.with_suffix('.wSub' + px.suffix)
+    cod = mkcod_subtitle(ns.path, subpath, _styles, outpath)
     cod.run(ns.dry)
 
 

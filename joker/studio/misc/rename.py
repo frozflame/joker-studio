@@ -143,13 +143,13 @@ class SerialRenamer(object):
 
 def run_rens(prog=None, args=None):
     desc = 'rename files with their hashes and serial nums'
-    choices = ['serial', 'md5', 'sha1', 'sha256', 'sha512']
+    choices = ['serial', 'md5', 'sha1', 'sha256', 'sha512', 'none']
     affix_help = 'a hash algorithm or "serial"'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
-        '-p', '--prefix', default='serial', choices=choices, help=affix_help)
+        '-p', '--prefix', default='md5', choices=choices, help=affix_help)
     parser.add_argument(
-        '-i', '--infix', default='md5', choices=choices, help=affix_help)
+        '-i', '--infix', default='none', choices=choices, help=affix_help)
     parser.add_argument(
         '-m', '--stem', help='replace original stem with')
     parser.add_argument(

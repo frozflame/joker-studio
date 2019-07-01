@@ -5,6 +5,7 @@ import pathlib
 import sys
 
 from PIL import Image
+from joker.cast.iterative import chunkwize_split
 
 
 class AvatarMaker(object):
@@ -44,8 +45,8 @@ def run(prog=None, args=None):
     desc = 'make avatar'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
-        '-f', '--format', choices=['jpg', 'png'], default='jpg',
-        help='output image format')
+        '-f', '--_format', choices=['jpg', 'png'], default='jpg',
+        help='output image _format')
     parser.add_argument(
         '-s', '--size', type=int, default=320,
         help='size of output image')
@@ -68,7 +69,7 @@ def convert_to_ico(path):
 
 def mkico(prog=None, args=None):
     import argparse
-    desc = 'convert images to ico format (multiple sizes in 1 file)'
+    desc = 'convert images to ico _format (multiple sizes in 1 file)'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
         'filenames', metavar='FILENAME', nargs='+', help='path to images')
@@ -82,36 +83,62 @@ def b64enc(path):
     return b64encode(open(path, 'rb').read())
 
 
-def print_bytes(b, width=60, ascode=False):
-    n = len(b)
-    width = width or n
-    ls = [b[i: i + width] for i in range(0, n, width)]
-    if not ascode:
-        for line in ls:
-            print(line.decode())
-        return
-    s = '_imb = {}'.format(repr(ls[0]))
-    sys.stdout.write(s)
-    for line in ls[1:]:
-        s = ' \\\n       {}'.format(line)
-        sys.stdout.write(s)
-    sys.stdout.write('\n\n')
+class SmallImage(object):
+    def __init__(self, binstr, fmt):
+        fmt = fmt.lower()
+        self._binstr = binstr
+        self._format = {'jpg': 'jpeg'}.get(fmt, fmt)
+
+    @classmethod
+    def from_file(cls, path, fmt=None):
+        binstr = open(path, 'rb').read()
+        fmt = fmt or path.split('.')[-1]
+        return cls(binstr, fmt)
+
+    def b64encode(self):
+        from base64 import b64encode
+        return b64encode(self._binstr)
+
+    def b64s(self):
+        from base64 import b64encode
+        return b64encode(self._binstr).decode()
+
+    def html_tag(self):
+        return '<img src="data:image/png;base64, {}" alt=""/>'.format(self.b64s())
+
+    def pycode(self, width=60):
+        pieces = chunkwize_split(self.b64encode(), width)
+        notations = (repr(s) for s in pieces)
+        prefix = '_imb = '
+        sep = ' \\\n' + ' ' * len(prefix)
+        parts = [
+            prefix + sep.join(notations),
+            'import io, base64; from PIL import Image',
+            'icon = Image.open(io.BytesIO(base64.b64decode(_imb)))',
+        ]
+        return '\n\n'.join(parts)
 
 
 def mkimb(prog=None, args=None):
     import argparse
     desc = 'convert a small to base64 encoded bytes'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
-    parser.add_argument(
-        '-c', '--code', action='store_true', help='print as code')
-    parser.add_argument(
-        '-w', '--width', type=int, default=60,
-        help='line width (0 for unlimited)')
-    parser.add_argument(
-        'filename', metavar='FILENAME', help='path to a small image')
+
+    parser.add_argument('-s', '--style', choices=['py', 'html'],
+                        help='print as python code or html img tag')
+
+    parser.add_argument('-w', '--width', type=int, default=60,
+                        help='line width (0 for unlimited, N/A when style=html)')
+
+    parser.add_argument('filename', metavar='FILENAME',
+                        help='path to a small image')
+
     ns = parser.parse_args(args)
-    b = b64enc(ns.filename)
-    print_bytes(b, ns.width, ns.code)
-    if ns.code:
-        print('import io, base64; from PIL import Image')
-        print('icon = Image.open(io.BytesIO(base64.b64decode(_imb)))')
+    si = SmallImage.from_file(ns.filename)
+    if not ns.style:
+        parts = chunkwize_split(si.b64s(), ns.width)
+        print('\n'.join(parts))
+    elif ns.style == 'py':
+        print(si.pycode(ns.width))
+    elif ns.style == 'html':
+        print(si.html_tag())

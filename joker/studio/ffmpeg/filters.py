@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-from joker.studio.common.utils import rel_shorthand
+from joker.studio.aux.utils import rel_shorthand
 
 
 def vf_crop(width, height, *margins):

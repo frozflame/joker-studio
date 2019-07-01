@@ -6,7 +6,8 @@ import itertools
 import numpy
 from PIL import Image
 from joker.cast.iterative import unflatten
-from joker.studio.common.utils import css_shorthand
+
+from joker.studio.aux.utils import css_shorthand
 
 example_wallspec = {
     "size": (640, 180),

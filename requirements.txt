@@ -1,3 +1,4 @@
+numpy
 volkanic
 joker
 pymediainfo

@@ -5,8 +5,8 @@ import argparse
 import math
 import pathlib
 
-from joker.studio.common import utils
-from joker.studio.common.info import MediaInfo
+from joker.studio.aux import utils
+from joker.studio.aux.info import MediaInfo
 
 
 def _labelfunc(startpos, duration, step):

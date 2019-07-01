@@ -4,7 +4,7 @@
 import argparse
 import pathlib
 
-from joker.studio.common import utils
+from joker.studio.aux import utils
 from joker.studio.ffmpeg.filters import vf_subtitle
 
 

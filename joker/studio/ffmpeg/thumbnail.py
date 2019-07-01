@@ -7,7 +7,7 @@ import pathlib
 
 from joker.cast.syntax import printerr
 
-from joker.studio.common import utils
+from joker.studio.aux import utils
 
 
 def mkcod_video_poster(path, outpath, pos):

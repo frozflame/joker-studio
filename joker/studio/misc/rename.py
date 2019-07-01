@@ -7,7 +7,7 @@ import os
 import pathlib
 import re
 
-from joker.studio.common.info import MediaInfo
+from joker.studio.aux.info import MediaInfo
 
 extcorrection = {
     '.jpeg': '.jpg',

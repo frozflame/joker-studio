@@ -4,9 +4,9 @@
 import argparse
 import pathlib
 
-from joker.studio.common import utils
-from joker.studio.common.info import MediaInfo
-from joker.studio.common.utils import CommandOptionDict
+from joker.studio.aux import utils
+from joker.studio.aux.info import MediaInfo
+from joker.studio.aux.utils import CommandOptionDict
 from joker.studio.ffmpeg.filters import af_fade, vf_fade
 
 

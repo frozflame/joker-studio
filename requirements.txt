@@ -1,6 +1,7 @@
 numpy
 volkanic
 joker
+joker-cast>=0.3
 pymediainfo
 pillow
 six

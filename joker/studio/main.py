@@ -14,6 +14,7 @@ entries = {
     'joker.studio.misc.avatar': 'avatar',
     'joker.studio.misc.avatar:mkico': 'ico',
     'joker.studio.misc.avatar:mkimb': 'imb',
+    'joker.studio.misc.remove': 'rmdir',
     'joker.studio.misc.rename': 'ren',
     'joker.studio.misc.rename:run_rens': 'rens',
 }

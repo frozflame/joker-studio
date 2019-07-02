@@ -107,7 +107,7 @@ class SmallImage(object):
         return '<img src="data:image/png;base64, {}" alt=""/>'.format(self.b64s())
 
     def pycode(self, width=60):
-        pieces = chunkwize_split(self.b64encode(), width)
+        pieces = chunkwize_split(width, self.b64encode())
         notations = (repr(s) for s in pieces)
         prefix = '_imb = '
         sep = ' \\\n' + ' ' * len(prefix)
@@ -136,7 +136,7 @@ def mkimb(prog=None, args=None):
     ns = parser.parse_args(args)
     si = SmallImage.from_file(ns.filename)
     if not ns.style:
-        parts = chunkwize_split(si.b64s(), ns.width)
+        parts = chunkwize_split(ns.width, si.b64s())
         print('\n'.join(parts))
     elif ns.style == 'py':
         print(si.pycode(ns.width))

@@ -65,7 +65,7 @@ def make_thumbnails(path, ns):
     cod.run(ns.dry)
 
 
-def run_poster(prog=None, args=None):
+def runp(prog=None, args=None):
     desc = 'generate poster images from videos'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(

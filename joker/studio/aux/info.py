@@ -44,4 +44,16 @@ class MediaInfo(object):
     def get_video_duration(self):
         return self.video.duration / 1000
 
+    def get_size(self):
+        tracks = self.find_tracks('Video') + self.find_tracks('Image')
+        if not tracks:
+            return None, None
+        tr = tracks[0]
+        return tr.width, tr.height
 
+    def get_duration(self):
+        tracks = self.find_tracks('Video') + self.find_tracks('Image')
+        if not tracks:
+            return None
+        tr = tracks[0]
+        return tr.duration / 1000

@@ -45,7 +45,7 @@ def run(prog=None, args=None):
     desc = 'make avatar'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
-        '-f', '--_format', choices=['jpg', 'png'], default='jpg',
+        '-f', '--format', choices=['jpg', 'png'], default='jpg',
         help='output image _format')
     parser.add_argument(
         '-s', '--size', type=int, default=320,

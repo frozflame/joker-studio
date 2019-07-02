@@ -55,4 +55,5 @@ docs/todo.txt
 target/
 
 .sass-cache
+_legacy
 

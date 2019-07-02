@@ -9,14 +9,13 @@ entries = {
     'joker.studio.ffmpeg.fade': 'fade',
     'joker.studio.ffmpeg.split': 'split',
     'joker.studio.ffmpeg.subtitle': 'sub',
-    'joker.studio.ffmpeg.thumbnail': 'thumbnail',
-    'joker.studio.ffmpeg.thumbnail:run_poster': 'poster',
+    'joker.studio.ffmpeg.thumbnail:run': 'thumbnail',
+    'joker.studio.ffmpeg.thumbnail:runp': 'poster',
     'joker.studio.misc.avatar': 'avatar',
     'joker.studio.misc.avatar:mkico': 'ico',
     'joker.studio.misc.avatar:mkimb': 'imb',
     'joker.studio.misc.remove': 'rmdir',
     'joker.studio.misc.rename': 'ren',
-    'joker.studio.misc.rename:run_rens': 'rens',
 }
 
 registry = CommandRegistry(entries)

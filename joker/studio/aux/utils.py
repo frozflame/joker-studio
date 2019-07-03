@@ -15,6 +15,10 @@ def rescale(wsrc, hsrc, w=None, h=None):
     return int(w / 2.) * 2, int(h / 2.) * 2
 
 
+def hexformat(nums):
+    return ''.join((format(n, 'X') for n in nums))
+
+
 def css_shorthand(*values):
     """css 4-edge shorthand"""
     n = len(values)

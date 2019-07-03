@@ -5,12 +5,17 @@ import argparse
 import datetime
 import hashlib
 import itertools
+import os
 import pathlib
 import re
 from functools import partial
+from subprocess import PIPE
 
+import imagehash
+from joker.studio.aux import utils
 from joker.studio.aux.info import MediaInfo
 from joker.studio.aux.utils import format_help_section
+from joker.studio.ffmpeg.thumb import mkcod_video_thumbnail
 
 
 def compute_hash(px, algo='md5'):
@@ -25,7 +30,6 @@ def compute_hash(px, algo='md5'):
 
 
 def compute_image_hash(px):
-    import imagehash
     from PIL import Image
     try:
         ih = imagehash.average_hash(Image.open(str(px)))
@@ -34,9 +38,26 @@ def compute_image_hash(px):
     return str(ih).upper()
 
 
+def compute_video_hash(px, hash_size=4, img_count=4):
+    path = str(px)
+    xinfo = MediaInfo(path)
+    duration = xinfo.get_video_duration()
+    params = {
+        'tspan': 1. * duration / (img_count + 1),
+        'count': img_count,
+        'size': (160, 90),
+    }
+    cod = mkcod_video_thumbnail(path, '-', **params)
+    with open(os.devnull, 'w') as devnull:
+        cp = cod.run(quiet=True, stdout=PIPE, stderr=devnull)
+    images = utils.split_stream_png(cp.stdout)
+    ihs = [imagehash.average_hash(img, hash_size) for img in images]
+    return ''.join([str(ih) for ih in ihs]).upper()
+
+
 def get_duration(px):
     parts = ['Dur']
-    dur = int(MediaInfo(str(px)).get_duration())
+    dur = int(MediaInfo(px).get_duration())
     dt = datetime.datetime.fromtimestamp(dur)
     if dt.hour:
         parts.append(str(dt.hour).rjust(2, '0') + 'h')
@@ -48,6 +69,7 @@ def get_duration(px):
 
 _known_fields = {
     'IH': compute_image_hash,
+    'VH': compute_video_hash,
     'MD5': partial(compute_hash, algo='md5'),
     'SHA1': partial(compute_hash, algo='sha1'),
     'SHA256': partial(compute_hash, algo='sha256'),
@@ -57,11 +79,11 @@ _known_fields = {
     'NAME': lambda px: px.name,
     'WxH': lambda px: '{}x{}'.format(*MediaInfo(str(px)).get_size()),
     'DURATION': lambda px: get_duration,
-    'SERIAL': lambda px: '{:03}'.format(next(_serial)),
 }
 
 _variables = {
     'IH': 'imagehash.average_hash()',
+    'VH': 'video hash based on imagehash.average_hash()',
     'MD5': '32 hex digits',
     'SHA1': '40 hex digits',
     'SHA256': '64 hex digits',
@@ -82,6 +104,7 @@ _presets = {
     'a': 'a-DURATION.NAME',
     'v': 'v-WxH-DURATION.NAME',
     'ih': 'ih-IH.NAME',
+    'vh': 'vh-VH.NAME',
     's': 's-SERIAL.NAME',
     '0': 'NAME',
 }
@@ -92,7 +115,7 @@ _clean_patterns = [
     r'^md5-[0-9a-f]{32}\.',
     r'^sha1-[0-9a-f]{40}\.',
     r'^(img|avatar|v|a)(-\d+x\d+|-Dur[0-9hms]+){1,2}\.',
-    r'^ih-[0-9A-F]{10,20}.',
+    r'^(ih|vh)-[0-9A-F]{10,20}.',
     r'^s-\d+\.',
 ]
 

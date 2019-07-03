@@ -55,3 +55,27 @@ This command generates a video with hard subtitle named `myvideo.wSub.mp4`
 
     dio sub -s myvideo.english.srt myvideo.mp4
       
+      
+--------------------------------------------------------------
+
+
+### Rename files
+
+Remove all "unsafe" characters on Unix-like systems, i.e. characters you should quote in shell scripts,
+and invalid characters on Microsoft Windows:
+
+    dio ren -f san *.jpg
+    
+Add a prefix like `img-640x480.` based on media information:
+
+    dio ren -f img waterlife.jpg
+    # waterlife.jpg => img-800x600.waterlife.jpg
+
+Add a prefix like `ih-F8F07B7F3F0E0E0F.` where `F8F07B7F3F0E0E0F` is an [imagehash](https://github.com/JohannesBuchner/imagehash)
+
+    dio ren -f ih lightning.jpg
+    # lightning.jpg => ih-F8F07B7F3F0E0E0F.lightning.jpg 
+    
+More info:
+    
+    dio ren -h 

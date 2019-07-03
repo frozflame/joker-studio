@@ -17,17 +17,28 @@ def remove_empty_dirs(rootdir, dry=False):
                 print('NOT REMOVED:', directory, file=sys.stderr)
 
 
-def remove_files(rootdir, patterns, dry=False):
-    for directory, dirnames, filenames in os.walk(rootdir):
+def _check(dir_, name, patterns, empty):
+    path = os.path.join(dir_, name)
+    if empty and os.path.getsize(path) == 0:
+        return path
+    for patt in patterns:
+        if fnmatch.fnmatch(name, patt):
+            return path
+
+
+def remove_files(rootdir, patterns, empty=False, dry=False):
+    _size = os.path.getsize
+    _join = os.path.join
+    for dir_, dirnames, filenames in os.walk(rootdir):
         for name in filenames:
-            for patt in patterns:
-                if fnmatch.fnmatch(name, patt):
-                    path = os.path.join(directory, name)
-                    if not dry:
-                        os.remove(path)
-                        print('REMOVED:', path, file=sys.stderr)
-                    else:
-                        print('NOT REMOVED:', path, file=sys.stderr)
+            path = _check(dir_, name, patterns, empty)
+            if not path:
+                continue
+            if not dry:
+                os.remove(path)
+                print('REMOVED:', path, file=sys.stderr)
+            else:
+                print('NOT REMOVED:', path, file=sys.stderr)
 
 
 _all_presets = {
@@ -56,28 +67,33 @@ def _format_presets_list():
 
 def run(prog=None, args=None):
     desc = 'remove (semi-)empty directories'
-    parser = argparse.ArgumentParser(
+    pr = argparse.ArgumentParser(
         prog=prog, description=desc,
         epilog=_format_presets_list(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument(
-        '-d', '--dry', action='store_true',
-        help='just show files to be removed')
-    parser.add_argument('-a', '--all-presets',
-                        action='store_true', help='use all presets')
-    parser.add_argument('target', metavar='dir', nargs='?', default='.',
-                        help='target directory')
-    parser.add_argument('patterns', nargs='*', metavar='pattern',
-                        help='preset names or filename patterns')
+    pr.add_argument('-d', '--dry', action='store_true',
+                    help='just show files to be removed')
 
-    ns = parser.parse_args(args)
+    pr.add_argument('-a', '--all-presets',
+                    action='store_true', help='use all presets')
+
+    pr.add_argument('-0', '--empty', action='store_true',
+                    help='remove all 0 byte files, regardless filename')
+
+    pr.add_argument('target', metavar='dir', nargs='?', default='.',
+                    help='target directory')
+
+    pr.add_argument('patterns', nargs='*', metavar='pattern',
+                    help='preset names or filename patterns')
+
+    ns = pr.parse_args(args)
     name_patterns = []
     if ns.all_presets:
         name_patterns = sum(_all_presets.values(), name_patterns)
 
     for pat in ns.patterns:
         name_patterns.extend(_all_presets.get(pat, [pat]))
-    if name_patterns:
-        remove_files(ns.target, set(name_patterns), ns.dry)
+    if name_patterns or ns.empty:
+        remove_files(ns.target, set(name_patterns), ns.empty, ns.dry)
     remove_empty_dirs(ns.target, ns.dry)

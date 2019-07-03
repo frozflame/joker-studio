@@ -78,11 +78,10 @@ def run(prog=None, args=None):
     pr.add_argument('-a', '--all-presets',
                     action='store_true', help='use all presets')
 
-    pr.add_argument('-0', '--empty', action='store_true',
+    pr.add_argument('-e', '--empty', action='store_true',
                     help='remove all 0 byte files, regardless filename')
 
-    pr.add_argument('target', metavar='dir', nargs='?', default='.',
-                    help='target directory')
+    pr.add_argument('target', metavar='dir', help='target directory')
 
     pr.add_argument('patterns', nargs='*', metavar='pattern',
                     help='preset names or filename patterns')

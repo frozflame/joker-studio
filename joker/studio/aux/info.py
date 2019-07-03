@@ -6,7 +6,7 @@ import pymediainfo
 
 class MediaInfo(object):
     def __init__(self, path):
-        self.path = path
+        self.path = str(path)
         self.minfo = pymediainfo.MediaInfo.parse(path)
 
     def find_tracks(self, track_type):

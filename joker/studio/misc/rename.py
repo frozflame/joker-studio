@@ -74,7 +74,9 @@ def sanitize(px):
     # x5C back-slash
     # x7F delete
     regex = re.compile(r'(^-|[\x00-\x20!$&();=@[^`<>:"/|?*\x27\x5C\x7F]+)')
-    return regex.sub('%', px.name)
+    name = regex.sub('%', px.name)
+    stem, ext = os.path.splitext(name)
+    return stem + _extcorrection.get(ext.lower(), ext)
 
 
 def camel_case(px):
@@ -156,13 +158,10 @@ class FormulaRenamer(object):
             re.compile(r'^(img|avatar|v|a)(-\d+x\d+|-Dur[0-9hms]+){1,2}\.'),
             re.compile(r'^(ih|vh)-[0-9A-F]{10,20}.'),
         ]
-        stem = px.stem
+        name = px.name
         for pat in _patterns:
-            stem = re.sub(pat, '', stem)
-        stem = re.sub(r'[.\s]+', '.', stem)
-        ext = px.suffix.lower()
-        ext = _extcorrection.get(ext, ext)
-        return px.with_name(stem + ext)
+            name = re.sub(pat, '', name)
+        return px.with_name(name)
 
     def make_name(self, px):
         parts = []

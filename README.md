@@ -66,15 +66,13 @@ and invalid characters on Microsoft Windows:
 
     dio ren -f san *.jpg
     
-Add a prefix like `img-640x480.` based on media information:
+Rename `waterlife.jpg` to `img-800x600.waterlife.jpg`:
 
     dio ren -f img waterlife.jpg
-    # waterlife.jpg => img-800x600.waterlife.jpg
 
-Add a prefix like `ih-F8F07B7F3F0E0E0F.` where `F8F07B7F3F0E0E0F` is an [imagehash](https://github.com/JohannesBuchner/imagehash)
+ Rename `lightning.jpg` to `ih-F8F07B7F3F0E0E0F.lightning.jpg`, where `F8F07B7F3F0E0E0F` is an [imagehash](https://github.com/JohannesBuchner/imagehash)
 
     dio ren -f ih lightning.jpg
-    # lightning.jpg => ih-F8F07B7F3F0E0E0F.lightning.jpg 
     
 More info:
     

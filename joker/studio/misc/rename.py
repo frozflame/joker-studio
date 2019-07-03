@@ -67,6 +67,22 @@ def get_duration(px):
     return ''.join(parts)
 
 
+def sanitize(px):
+    # windows file names disallow:  <>:"/|?* back-slash
+    # need to be quoted on unix:    !$&();=@[^`
+    # x27 single-quote
+    # x5C back-slash
+    # x7F delete
+    regex = re.compile(r'(^-|[\x00-\x20!$&();=@[^`<>:"/|?*\x27\x5C\x7F]+)')
+    return regex.sub('%', px.name)
+
+
+def camel_case(px):
+    parts = px.name.split()
+    parts = [w[0].upper() + w[1:] for w in parts]
+    return ''.join(parts)
+
+
 _known_fields = {
     'IH': compute_image_hash,
     'VH': compute_video_hash,
@@ -74,11 +90,13 @@ _known_fields = {
     'SHA1': partial(compute_hash, algo='sha1'),
     'SHA256': partial(compute_hash, algo='sha256'),
     'SHA512': partial(compute_hash, algo='sha512'),
-    'EXT': lambda px: px.suffix[1:],
-    'STEM': lambda px: px.stem,
-    'NAME': lambda px: px.name,
     'WxH': lambda px: '{}x{}'.format(*MediaInfo(str(px)).get_size()),
     'DURATION': lambda px: get_duration,
+    'STEM': lambda px: px.stem,
+    'EXT': lambda px: px.suffix[1:],
+    'NAME': lambda px: px.name,
+    'CCNAME': camel_case,
+    'SANNAME': sanitize,
 }
 
 _variables = {
@@ -88,11 +106,13 @@ _variables = {
     'SHA1': '40 hex digits',
     'SHA256': '64 hex digits',
     'SHA512': '128 hex digits',
+    'WxH': 'image or video size',
+    'DURATION': 'audio or video duration',
     'EXT': 'original extension, without a leading dot',
     'STEM': 'original file name without extension',
     'NAME': 'original file name',
-    'WxH': 'image or video size',
-    'DURATION': 'audio or video duration',
+    'CCNAME': 'CamelCased file name',
+    'SANNAME': 'sanitized file name',
 }
 
 _presets = {
@@ -105,20 +125,13 @@ _presets = {
     'v': 'v-WxH-DURATION.NAME',
     'ih': 'ih-IH.NAME',
     'vh': 'vh-VH.NAME',
-    's': 's-SERIAL.NAME',
+    's': 'ser-SERIAL.NAME',
     '0': 'NAME',
+    'cc': 'CCNAME',
+    'san': 'SANNAME',
 }
 
-# language: regexp
-_clean_patterns = [
-    r'^md5-\b',
-    r'^md5-[0-9a-f]{32}\.',
-    r'^sha1-[0-9a-f]{40}\.',
-    r'^(img|avatar|v|a)(-\d+x\d+|-Dur[0-9hms]+){1,2}\.',
-    r'^(ih|vh)-[0-9A-F]{10,20}.',
-    r'^s-\d+\.',
-]
-
+# language=regex
 _extcorrection = {
     '.jpeg': '.jpg',
     '.mpeg': '.mpg',
@@ -130,35 +143,37 @@ _extcorrection = {
 
 
 class FormulaRenamer(object):
-    def __init__(self, formula, clean=False, start=101):
-        self.clean = clean
-        self.serial = itertools.count(start)
+    def __init__(self, formula, clear=False, start=101):
+        self._clear = clear
+        self._serial = itertools.count(start)
         formula = _presets.get(formula, formula)
-        self.fields = re.split(r'(\W+)', formula)
+        self._fields = re.split(r'(\W+)', formula)
 
     @staticmethod
-    def _clean_name(path):
-        px = pathlib.Path(path)
+    def clear_preset_tags(px):
+        _patterns = [
+            re.compile(r'^(md5|sha1)-[0-9a-f]{32,40}\.'),
+            re.compile(r'^(img|avatar|v|a)(-\d+x\d+|-Dur[0-9hms]+){1,2}\.'),
+            re.compile(r'^(ih|vh)-[0-9A-F]{10,20}.'),
+        ]
         stem = px.stem
-        for pat in _clean_patterns:
+        for pat in _patterns:
             stem = re.sub(pat, '', stem)
         stem = re.sub(r'[.\s]+', '.', stem)
-        stem = re.sub(r'\.$', '', stem)
-        stem = re.sub(r'^-', '', stem)
         ext = px.suffix.lower()
         ext = _extcorrection.get(ext, ext)
         return px.with_name(stem + ext)
 
     def make_name(self, px):
         parts = []
-        if self.clean:
-            px = self._clean_name(px)
-        for k in self.fields:
+        if self._clear:
+            px = self.clear_preset_tags(px)
+        for k in self._fields:
             if k in _known_fields:
                 s = _known_fields[k](px)
                 parts.append(s)
             elif k == 'SERIAL':
-                parts.append(str(next(self.serial)))
+                parts.append(str(next(self._serial)))
             else:
                 parts.append(k)
         return ''.join(parts)
@@ -177,22 +192,22 @@ def run(prog=None, args=None):
         format_help_section('presets', _presets),
     ])
 
-    parser = argparse.ArgumentParser(
+    pr = argparse.ArgumentParser(
         prog=prog, description=desc, epilog=epilog,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument('-f', '--formula', default=_presets['(default)'],
-                        help='a name formula, or one of the presets')
+    pr.add_argument('-f', '--formula', default=_presets['(default)'],
+                    help='a name formula, or one of the presets')
 
-    parser.add_argument('-c', '--clean', action='store_true',
-                        help='remove preset-prefixes, ^-, .$, spaces, etc.')
+    pr.add_argument('-c', '--clear', action='store_true',
+                    help='clear previously add tags using presets')
 
-    parser.add_argument('-s', '--start', default=101, type=int,
-                        help='start number of the SERIAL variable')
+    pr.add_argument('-i', '--start', default=101, type=int,
+                    help='start number of the SERIAL variable')
 
-    parser.add_argument('files', metavar='PATH', nargs='+')
+    pr.add_argument('files', metavar='PATH', nargs='+')
 
-    ns = parser.parse_args(args)
-    fren = FormulaRenamer(ns.formula, ns.clean, ns.start)
+    ns = pr.parse_args(args)
+    fren = FormulaRenamer(ns.formula, ns.clear, ns.start)
     for path in ns.files:
         fren.rename(path)

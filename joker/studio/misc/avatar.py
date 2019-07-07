@@ -121,7 +121,7 @@ class SmallImage(object):
 
 def mkimb(prog=None, args=None):
     import argparse
-    desc = 'convert a small to base64 encoded bytes'
+    desc = 'Convert a small to base64 encoded bytes'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
 
     parser.add_argument('-s', '--style', choices=['py', 'html'],

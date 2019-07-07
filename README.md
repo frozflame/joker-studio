@@ -74,6 +74,10 @@ Rename `waterlife.jpg` to `img-800x600.waterlife.jpg`:
 
     dio ren -f ih lightning.jpg
     
+Remove preset prefixes:
+
+    dio ren -fn -c *.jpg 
+    
 More info:
     
     dio ren -h 

@@ -31,7 +31,7 @@ def mkcod_fade(path, outpath, vfadein=0, vfadeout=0, afadein=0, afadeout=0):
 
 
 def run(prog=None, args=None):
-    desc = 'add fade-in and fade-out to audios'
+    desc = 'Add fade-in and fade-out to audios'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 

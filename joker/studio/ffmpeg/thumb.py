@@ -88,7 +88,7 @@ def runp(prog=None, args=None):
 
 
 def run(prog=None, args=None):
-    desc = 'generate thumbnail images from a video'
+    desc = 'Generate thumbnail images from a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 

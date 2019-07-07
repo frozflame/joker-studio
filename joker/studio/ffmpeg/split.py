@@ -43,7 +43,7 @@ def uniform_split(ns):
 
 
 def run(prog=None, args=None):
-    desc = 'split a video uniformly'
+    desc = 'Split a video uniformly'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 

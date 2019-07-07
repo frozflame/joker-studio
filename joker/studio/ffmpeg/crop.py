@@ -29,7 +29,7 @@ def mkcod_crop(path, outpath, head, tail, *margins):
 
 
 def run(prog=None, args=None):
-    desc = 'rename files'
+    desc = 'Rename files'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 

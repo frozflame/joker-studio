@@ -66,7 +66,7 @@ def _format_presets_list():
 
 
 def run(prog=None, args=None):
-    desc = 'remove (semi-)empty directories'
+    desc = 'Remove (semi-)empty directories'
     pr = argparse.ArgumentParser(
         prog=prog, description=desc,
         epilog=_format_presets_list(),

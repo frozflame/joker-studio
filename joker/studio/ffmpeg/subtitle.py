@@ -53,7 +53,7 @@ _styles = [
 
 
 def run(prog=None, args=None):
-    desc = 'burn subtitle into a video'
+    desc = 'Burn subtitle into a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
     parser.add_argument('-s', '--sub', metavar='PATH', help='an SRT file')

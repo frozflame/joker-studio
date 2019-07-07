@@ -12,6 +12,7 @@ from functools import partial
 from subprocess import PIPE
 
 import imagehash
+
 from joker.studio.aux import utils
 from joker.studio.aux.info import MediaInfo
 from joker.studio.aux.utils import format_help_section
@@ -117,18 +118,26 @@ _variables = {
     'SANNAME': 'sanitized file name',
 }
 
-_presets = {
+_safe_presets = {
     '(default)': 'md5-MD5.NAME',
     'md5': 'md5-MD5.NAME',
     'sha1': 'sha1-SHA1.NAME',
+    'ih': 'ih-IH.NAME',
+    'vh': 'vh-VH.NAME',
+    's': 'ser-SERIAL.NAME',
     'avatar': 'avatar-WxH.NAME',
     'i': 'img-WxH.NAME',
     'a': 'a-DURATION.NAME',
     'v': 'v-WxH-DURATION.NAME',
-    'ih': 'ih-IH.NAME',
-    'vh': 'vh-VH.NAME',
-    's': 'ser-SERIAL.NAME',
-    '0': 'NAME',
+    'n': 'NAME',
+}
+
+_risky_presets = {
+    'md5%': 'md5-MD5.EXT',
+    'sha1%': 'sha1-SHA1.EXT',
+    'ih%': 'ih-IH.EXT',
+    'vh%': 'vh-VH.EXT',
+    's%': 'ser-SERIAL.EXT',
     'cc': 'CCNAME',
     'san': 'SANNAME',
 }
@@ -144,15 +153,19 @@ _extcorrection = {
 }
 
 
+def presets_lookup(name):
+    return _safe_presets.get(name) or _risky_presets.get(name, name)
+
+
 class FormulaRenamer(object):
     def __init__(self, formula, clear=False, start=101):
         self._clear = clear
         self._serial = itertools.count(start)
-        formula = _presets.get(formula, formula)
+        formula = presets_lookup(formula)
         self._fields = re.split(r'(\W+)', formula)
 
     @staticmethod
-    def clear_preset_tags(px):
+    def clear_preset_prefixes(px):
         _patterns = [
             re.compile(r'^(md5|sha1)-[0-9a-f]{32,40}\.'),
             re.compile(r'^(img|avatar|v|a)(-\d+x\d+|-Dur[0-9hms]+){1,2}\.'),
@@ -166,7 +179,7 @@ class FormulaRenamer(object):
     def make_name(self, px):
         parts = []
         if self._clear:
-            px = self.clear_preset_tags(px)
+            px = self.clear_preset_prefixes(px)
         for k in self._fields:
             if k in _known_fields:
                 s = _known_fields[k](px)
@@ -184,18 +197,19 @@ class FormulaRenamer(object):
 
 
 def run(prog=None, args=None):
-    desc = 'rename files with a formula'
+    desc = 'Rename files with a formula'
     s = ' (case sensitive)'
     epilog = '\n'.join([
-        format_help_section('variables' + s, _variables),
-        format_help_section('presets', _presets),
+        format_help_section('Variables' + s, _variables),
+        format_help_section('Safe presets', _safe_presets),
+        format_help_section('Risky presets', _risky_presets),
     ])
 
     pr = argparse.ArgumentParser(
         prog=prog, description=desc, epilog=epilog,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    pr.add_argument('-f', '--formula', default=_presets['(default)'],
+    pr.add_argument('-f', '--formula', default=_safe_presets['(default)'],
                     help='a name formula, or one of the presets')
 
     pr.add_argument('-c', '--clear', action='store_true',

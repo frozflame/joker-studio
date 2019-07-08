@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
 import argparse
-import os
 import pathlib
 
 import numpy
@@ -49,11 +48,11 @@ class MarginDetection(object):
     def from_file(cls, path, stdmax=STDMAX):
         return cls(Image.open(path), stdmax)
 
-    def crop(self, outpath=''):
-        cimg = self.img.crop(self.box)
-        if outpath:
-            cimg.save(outpath)
-        return cimg
+    def crop(self):
+        return self.img.crop(self.box)
+
+    def save(self, outpath):
+        return self.crop().save(outpath)
 
     def _check_std(self, pixels):
         if any(list(pixels.std(axis=0) > self.maxstd)):
@@ -75,35 +74,34 @@ class MarginDetection(object):
         return 0
 
 
-def margin_crop(path, prefix, stdmax):
+def _backup(path):
     px = pathlib.Path(path)
-    if px.name.startswith(prefix):
-        raise ValueError('input file named with output prefix')
-    px_out = px.with_name(prefix + px.name)
-    if px_out.exists():
-        raise IOError('output file exists')
+    for i in range(100):
+        tag = '.ORIG-{:02}'.format(i)
+        px_bak = px.with_suffix(tag + px.suffix)
+        if not px_bak.exists():
+            return px.rename(px_bak)
+
+
+def margin_crop(path, stdmax, backup=True):
     mdet = MarginDetection.from_file(path, stdmax)
-    mdet.crop(px_out)
+    backup and _backup(path)
+    mdet.save(path)
 
 
 def run(prog=None, args=None):
-    desc = 'Crop images with homogeneously colored margins'
+    desc = 'Crop images with homogeneously colored margins '
     pr = argparse.ArgumentParser(prog=prog, description=desc)
-    default_prefix = prog.upper().split()[-1] + '.'
     pr.add_argument('-s', '--stdmax', default=STDMAX, type=int,
                     help='maximum standard deviation')
-    pr.add_argument('-p', '--prefix', default=default_prefix,
-                    help='name prefix for generated files')
-    pr.add_argument('-D', '--delete', action='store_true',
-                    help='delete original files')
+    pr.add_argument('-B', '--no-backup', action='store_true',
+                    help='do NOT backup original file')
     pr.add_argument('files', nargs='*', metavar='PATH',
                     help='paths to files to be cropped')
     ns = pr.parse_args(args)
     for path in ns.files:
         try:
-            margin_crop(path, ns.prefix, ns.stdmax)
+            margin_crop(path, ns.stdmax, not ns.no_backup)
         except Exception as e:
             printerr('Failed:', path, '--', e)
             continue
-        if ns.delete:
-            os.remove(path)

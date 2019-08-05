@@ -119,7 +119,7 @@ _variables = {
 }
 
 _safe_presets = {
-    '(default)': 'md5-MD5.NAME',
+    'default': 'md5-MD5.NAME',
     'md5': 'md5-MD5.NAME',
     'sha1': 'sha1-SHA1.NAME',
     'ih': 'ih-IH.NAME',
@@ -209,7 +209,7 @@ def run(prog=None, args=None):
         prog=prog, description=desc, epilog=epilog,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    pr.add_argument('-f', '--formula', default=_safe_presets['(default)'],
+    pr.add_argument('-f', '--formula', default=_safe_presets['default'],
                     help='a name formula, or one of the presets')
 
     pr.add_argument('-c', '--clear', action='store_true',

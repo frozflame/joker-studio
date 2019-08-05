@@ -52,7 +52,7 @@ class MediaInfo(object):
         return tr.width, tr.height
 
     def get_duration(self):
-        tracks = self.find_tracks('Video') + self.find_tracks('Image')
+        tracks = self.find_tracks('Video') + self.find_tracks('Audio')
         if not tracks:
             return None
         tr = tracks[0]

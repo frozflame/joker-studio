@@ -18,47 +18,87 @@ def _labelfunc(startpos, duration, step):
     return hh + mm + ss
 
 
-def uniform_split(ns):
-    """
-    :param ns: an argparse.Namespace obj
-    :return: a generator of CommandOptionDict instances
-    """
-    xinfo = MediaInfo(ns.path)
-    duration = math.ceil(xinfo.get_video_duration())
-    step = duration / ns.num if ns.num else ns.step
-    step = math.ceil(step)
-    px = pathlib.Path(ns.path)
+class MediaSplitter(object):
+    def __init__(self, path):
+        self.px = pathlib.Path(path)
+        self.path = path
+        self.xinfo = MediaInfo(path)
+        self.duration = math.ceil(self.xinfo.get_duration())
 
-    for startpos in range(0, duration, step):
-        cod = utils.CommandOptionDict([
-            ('i', ns.path),
-            ('ss', startpos),
-            ('t', step),
-            ('c:v', 'copy'),
-            ('c:a', 'copy'),
-        ])
+    def _fmt_label(self, startpos, precise=True):
+        m, s = divmod(startpos, 60)
+        h, m = divmod(m, 60)
+        hh = '{:02}'.format(h) if self.duration >= 3600 else ''
+        mm = '{:02}'.format(m)
+        ss = '{:02}'.format(s) if precise else 'M'
+        return hh + mm + ss
 
-        suffix = '._split_' + _labelfunc(startpos, duration, step) + px.suffix
-        yield cod('ffmpeg', px.with_suffix(suffix))
+    def split(self, position_pairs):
+        position_pairs = list(position_pairs)
+        precise = any(pair[0] % 60 for pair in position_pairs)
+        for start, length in position_pairs:
+            cod = utils.CommandOptionDict([
+                ('i', self.px),
+                ('ss', start),
+                ('t', length),
+                ('c:v', 'copy'),
+                ('c:a', 'copy'),
+            ])
+            label = '.SPLIT-' + self._fmt_label(start, precise)
+            px_out = self.px.with_suffix(label + self.px.suffix)
+            yield cod('ffmpeg', px_out)
+
+    def uniform_split(self, step):
+        # step = duration / num if num else ns.step
+        step = math.ceil(step)
+        start_positions = range(0, self.duration, step)
+        return self.split((p, step) for p in start_positions)
+
+    def custom_split(self, positions):
+        positions = list(positions)
+        positions.sort()
+        if positions[0] != 0:
+            positions.insert(0, 0)
+        if positions[-1] < self.duration:
+            positions.append(self.duration)
+        pairs = zip(positions[:-1], positions[1:])
+        return self.split(pairs)
+
+    def silence_split(self):
+        from joker.studio.fuzzy.silences import find_silences
+        return self.custom_split(find_silences(self.path))
 
 
 def run(prog=None, args=None):
-    desc = 'Split a video uniformly'
+    desc = 'Split a video uniformly or at specified positions'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        '-s', '--step', type=int, default=240,
+        '-n', '--num', type=int, metavar='INT',
+        help='number of segments to split into')
+    group.add_argument(
+        '-s', '--step', type=int, default=240, metavar='INT',
         help='length of each segment, in second')
     group.add_argument(
-        '-n', '--num', type=int,
-        help='number of segments to split into')
+        '-p', '--positions', type=int, nargs='+',
+        metavar='INT', help='positions of splits')
+    group.add_argument(
+        '-q', '--silence', action='store_true',
+        help='split on silences')
 
-    parser.add_argument('path', help='a video')
+    parser.add_argument('path', help='a video or audio file')
     ns = parser.parse_args(args)
-    print(vars(ns))
-    for cod in uniform_split(ns):
+    mspl = MediaSplitter(ns.path)
+    if ns.silence:
+        cods = mspl.silence_split()
+    elif ns.positions:
+        cods = mspl.custom_split(ns.positions)
+    else:
+        step = mspl.duration / ns.num if ns.num else ns.step
+        cods = mspl.uniform_split(step)
+    for cod in cods:
         cod.run(ns.dry)
 
 

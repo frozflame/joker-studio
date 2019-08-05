@@ -103,7 +103,9 @@ class CommandOptionDict(OrderedDict):
         return list(map(str, parts))
 
     def __str__(self):
-        return ' '.join(self.as_args())
+        import shlex
+        args = [shlex.quote(s) for s in self.as_args()]
+        return ' '.join(args)
 
     def run(self, dry=False, quiet=False, **kwargs):
         if not quiet:

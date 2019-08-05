@@ -65,7 +65,7 @@ def make_thumbnails(path, ns):
     cod.run(ns.dry)
 
 
-def runp(prog=None, args=None):
+def poster(prog=None, args=None):
     desc = 'generate poster images from videos'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
@@ -87,7 +87,7 @@ def runp(prog=None, args=None):
             printerr(e)
 
 
-def run(prog=None, args=None):
+def thumb(prog=None, args=None):
     desc = 'Generate thumbnail images from a video'
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)

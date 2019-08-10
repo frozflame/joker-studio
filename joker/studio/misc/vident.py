@@ -4,6 +4,7 @@ import argparse
 import os
 import re
 import sys
+import traceback
 from collections import defaultdict
 
 from joker.cast.syntax import printerr
@@ -13,12 +14,9 @@ from joker.textmanip.path import proper_filename
 from joker.studio.aux.info import MediaInfo
 from joker.studio.misc.rename import compute_video_hash
 
-_split = os.path.split
-_splitext = os.path.splitext
-
 
 class VideoIdentifier(object):
-    PREFIX = 'vid4_'
+    version = 'vid4_'
     __slots__ = ['duration', 'vhash', 'w', 'h']
 
     def __init__(self, duration, vhash, width, height):
@@ -34,11 +32,11 @@ class VideoIdentifier(object):
     def unikey(self):
         ds = sexagesimal_format(int(self.duration))
         ds = ds.rjust(3, '0')
-        return self.PREFIX + '{}_{}'.format(ds, self.vhash)
+        return self.version + '{}_{}'.format(ds, self.vhash)
 
     @classmethod
     def get_regex(cls):
-        p = '^' + VideoIdentifier.PREFIX
+        p = '^' + VideoIdentifier.version
         return re.compile(p + r'([0-9a-yA-Y]{,4})_([0-9A-Z]{,80})-(\d+)x(\d+)')
 
     @classmethod
@@ -51,7 +49,7 @@ class VideoIdentifier(object):
         return cls(sexagesimal_parse(ds), fc, w, h)
 
     @classmethod
-    def from_file(cls, path):
+    def from_name(cls, path):
         xinfo = MediaInfo(path)
         duration = xinfo.get_video_duration()
         vh = compute_video_hash(path)
@@ -59,20 +57,20 @@ class VideoIdentifier(object):
         return cls(duration, vh, v.width, v.height)
 
     @classmethod
-    def make_filename(cls, path):
+    def make_name(cls, path):
         dir_, name = os.path.split(path)
-        if name.startswith(cls.PREFIX):
+        if name.startswith(cls.version):
             vident = cls.parse(name.split('.')[0])
             return vident, path
 
-        vident = cls.from_file(path)
+        vident = cls.from_name(path)
         new_name = '{}.{}'.format(vident, proper_filename(name))
         new_path = os.path.join(dir_, new_name)
         return vident, new_path
 
     @classmethod
     def rename(cls, path):
-        vident, new_path = cls.make_filename(path)
+        vident, new_path = cls.make_name(path)
         if new_path != path:
             print('new_path:', new_path, file=sys.stderr)
             os.rename(path, new_path)
@@ -80,12 +78,14 @@ class VideoIdentifier(object):
 
 
 def p_filter_by_extension(paths):
-    extensions = {'.mp4', '.ts'}
+    extensions = {'.mp4', '.ts', '.mkv'}
+    _splitext = os.path.splitext
     return [p for p in paths if _splitext(p)[1] in extensions]
 
 
 def p_filter_by_prefix(paths):
-    vp = VideoIdentifier.PREFIX
+    vp = VideoIdentifier.version
+    _split = os.path.split
     return [p for p in paths if _split(p)[1].startswith(vp)]
 
 
@@ -97,10 +97,11 @@ def keyfunc(pair):
 def show(paths):
     for path in paths:
         try:
-            vi = VideoIdentifier.from_file(path)
+            vi = VideoIdentifier.from_name(path)
             print(vi, path, sep='\t')
         except Exception as e:
-            printerr(e)
+            # printerr(e)
+            traceback.print_exc()
             printerr('bad file:', path)
 
 
@@ -109,8 +110,8 @@ def add_vident_prefix(paths):
     for path in p_filter_by_extension(paths):
         try:
             vi, path = VideoIdentifier.rename(path)
-        except ValueError as e:
-            printerr(e)
+        except ValueError:
+            traceback.print_exc()
             printerr('bad file:', path)
             continue
         groups[vi.unikey].append((vi, path))

@@ -8,13 +8,18 @@ import itertools
 import os
 import pathlib
 import re
-from functools import partial
+from functools import lru_cache, partial
 from subprocess import PIPE
 
 from joker.studio.aux import utils
-from joker.studio.aux.info import MediaInfo
 from joker.studio.aux.utils import format_help_section
 from joker.studio.ffmpeg.thumb import mkcod_video_thumbnail
+
+
+@lru_cache(maxsize=64)
+def get_xinfo(path):
+    from joker.studio.aux.info import MediaInfo
+    return MediaInfo(path)
 
 
 def compute_hash(px, algo='md5'):
@@ -42,7 +47,7 @@ def compute_image_hash(px):
 def compute_video_hash(px, hash_size=4, img_count=4):
     import imagehash
     path = str(px)
-    xinfo = MediaInfo(path)
+    xinfo = get_xinfo(path)
     duration = xinfo.get_video_duration()
     params = {
         'tspan': 1. * duration / (img_count + 1),
@@ -59,7 +64,7 @@ def compute_video_hash(px, hash_size=4, img_count=4):
 
 def get_duration(px):
     parts = ['Dur']
-    dur = int(MediaInfo(px).get_duration())
+    dur = int(get_xinfo(px).get_duration())
     dt = datetime.datetime.fromtimestamp(dur)
     if dt.hour:
         parts.append(str(dt.hour).rjust(2, '0') + 'h')
@@ -94,7 +99,7 @@ _known_fields = {
     'SHA1': partial(compute_hash, algo='sha1'),
     'SHA256': partial(compute_hash, algo='sha256'),
     'SHA512': partial(compute_hash, algo='sha512'),
-    'WxH': lambda px: '{}x{}'.format(*MediaInfo(str(px)).get_size()),
+    'WxH': lambda px: '{}x{}'.format(*get_xinfo(px).get_size()),
     'DURATION': lambda px: get_duration,
     'STEM': lambda px: px.stem,
     'EXT': lambda px: px.suffix[1:],

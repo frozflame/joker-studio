@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-import pymediainfo
-
 
 class MediaInfo(object):
     def __init__(self, path):
+        # pymediainfo is slow to import, 600ms+
+        import pymediainfo
         self.path = str(path)
         self.minfo = pymediainfo.MediaInfo.parse(path)
 
@@ -39,10 +39,10 @@ class MediaInfo(object):
         return self.get_track('general')
 
     def get_audio_duration(self):
-        return self.audio.duration / 1000
+        return float(self.audio.duration) / 1000
 
     def get_video_duration(self):
-        return self.video.duration / 1000
+        return float(self.video.duration) / 1000
 
     def get_size(self):
         tracks = self.find_tracks('Video') + self.find_tracks('Image')
@@ -56,4 +56,4 @@ class MediaInfo(object):
         if not tracks:
             return None
         tr = tracks[0]
-        return tr.duration / 1000
+        return float(tr.duration) / 1000

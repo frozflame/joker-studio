@@ -11,8 +11,6 @@ import re
 from functools import partial
 from subprocess import PIPE
 
-import imagehash
-
 from joker.studio.aux import utils
 from joker.studio.aux.info import MediaInfo
 from joker.studio.aux.utils import format_help_section
@@ -31,6 +29,8 @@ def compute_hash(px, algo='md5'):
 
 
 def compute_image_hash(px):
+    # imagehash is slow to import, 250ms
+    import imagehash
     from PIL import Image
     try:
         ih = imagehash.average_hash(Image.open(str(px)))
@@ -40,6 +40,7 @@ def compute_image_hash(px):
 
 
 def compute_video_hash(px, hash_size=4, img_count=4):
+    import imagehash
     path = str(px)
     xinfo = MediaInfo(path)
     duration = xinfo.get_video_duration()

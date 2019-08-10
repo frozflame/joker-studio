@@ -45,6 +45,7 @@ def compute_image_hash(px):
 
 
 def compute_video_hash(px, hash_size=4, img_count=4):
+    # imagehash is slow to import, 250ms
     import imagehash
     path = str(px)
     xinfo = get_xinfo(path)

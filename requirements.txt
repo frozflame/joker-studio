@@ -1,7 +1,8 @@
-numpy
-volkanic
+imagehash
 joker
 joker-cast>=0.3
-pymediainfo
+numpy
 pillow
-imagehash
+pymediainfo
+scipy
+volkanic

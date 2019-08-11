@@ -8,6 +8,7 @@ import itertools
 import os
 import pathlib
 import re
+import shlex
 from functools import lru_cache, partial
 from subprocess import PIPE
 
@@ -84,7 +85,8 @@ def sanitize(px):
     regex = re.compile(r'(^-|[\x00-\x20!$&();=@[^`<>:"/|?*\x27\x5C\x7F]+)')
     name = regex.sub('%', px.name)
     stem, ext = os.path.splitext(name)
-    return stem + _extcorrection.get(ext.lower(), ext)
+    ext = ext.lower()
+    return stem + _extcorrection.get(ext, ext)
 
 
 def camel_case(px):
@@ -197,10 +199,25 @@ class FormulaRenamer(object):
                 parts.append(k)
         return ''.join(parts)
 
+    @staticmethod
+    def _case_insen_rename(old, new):
+        tag = '__' + os.urandom(4).hex()
+        interm = new + tag
+        os.rename(old, interm)
+        os.rename(interm, new)
+
     def rename(self, path):
         px = pathlib.Path(path)
         name = self.make_name(px)
-        px.rename(px.with_name(name))
+        new_px = px.with_name(name)
+        new_path = str(new_px)
+        if path == new_path:
+            return
+        q = shlex.quote
+        print('mv -t', q(path), q(new_path))
+        if path.lower() != new_path.lower():
+            return px.rename(new_px)
+        self._case_insen_rename(path, new_path)
 
 
 def run(prog=None, args=None):

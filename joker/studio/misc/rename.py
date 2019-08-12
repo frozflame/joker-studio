@@ -76,6 +76,21 @@ def get_duration(px):
     return ''.join(parts)
 
 
+_lower3 = {
+    '.jpeg': '.jpg',
+    '.mpeg': '.mpg',
+    '.tiff': '.tif',
+    '.png_large': '.png',
+    '.jpg_large': '.jpg',
+    '.bmp_large': '.bmp',
+}
+
+
+def lower3_extension(ext):
+    ext = ext.lower()
+    return _lower3.get(ext, ext)
+
+
 def sanitize(px):
     # windows file names disallow:  <>:"/|?* back-slash
     # need to be quoted on unix:    !$&();=@[^`
@@ -85,8 +100,7 @@ def sanitize(px):
     regex = re.compile(r'(^-|[\x00-\x20!$&();=@[^`<>:"/|?*\x27\x5C\x7F]+)')
     name = regex.sub('%', px.name)
     stem, ext = os.path.splitext(name)
-    ext = ext.lower()
-    return stem + _extcorrection.get(ext, ext)
+    return stem + lower3_extension(ext)
 
 
 def camel_case(px):
@@ -104,8 +118,9 @@ _known_fields = {
     'SHA512': partial(compute_hash, algo='sha512'),
     'WxH': lambda px: '{}x{}'.format(*get_xinfo(px).get_size()),
     'DURATION': lambda px: get_duration,
-    'STEM': lambda px: px.stem,
     'EXT': lambda px: px.suffix[1:],
+    'EXTL3': lambda px: lower3_extension(px.suffix)[1:],
+    'STEM': lambda px: px.stem,
     'NAME': lambda px: px.name,
     'CCNAME': camel_case,
     'SANNAME': sanitize,
@@ -121,6 +136,7 @@ _variables = {
     'WxH': 'image or video size',
     'DURATION': 'audio or video duration',
     'EXT': 'original extension, without a leading dot',
+    'EXTL3': 'lower3 extension, without a leading dot',
     'STEM': 'original file name without extension',
     'NAME': 'original file name',
     'CCNAME': 'CamelCased file name',
@@ -149,16 +165,6 @@ _risky_presets = {
     's%': 'ser-SERIAL.EXT',
     'cc': 'CCNAME',
     'san': 'SANNAME',
-}
-
-# language=regex
-_extcorrection = {
-    '.jpeg': '.jpg',
-    '.mpeg': '.mpg',
-    '.tiff': '.tif',
-    '.png_large': '.png',
-    '.jpg_large': '.jpg',
-    '.bmp_large': '.bmp',
 }
 
 
@@ -207,6 +213,7 @@ class FormulaRenamer(object):
         os.rename(interm, new)
 
     def rename(self, path):
+        path = os.path.abspath(path)
         px = pathlib.Path(path)
         name = self.make_name(px)
         new_px = px.with_name(name)

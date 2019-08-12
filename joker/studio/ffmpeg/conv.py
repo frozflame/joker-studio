@@ -61,29 +61,30 @@ def mkcod_convert_to_audio(path, outpath):
     return cod('ffmpeg', outpath)
 
 
-CAT_AUDIO = 1
-CAT_VIDEO = 2
-CAT_IMAGE = 3
+MEDIATYPE_AUDIO = 1
+MEDIATYPE_VIDEO = 2
+MEDIATYPE_IMAGE = 3
 
 
 known_extensions = {
-    '.mp3': CAT_AUDIO,
-    '.wav': CAT_AUDIO,
-    '.aac': CAT_AUDIO,
-    '.ogg': CAT_AUDIO,
-    '.wma': CAT_AUDIO,
-    '.jpg': CAT_IMAGE,
-    '.bmp': CAT_IMAGE,
-    '.png': CAT_IMAGE,
-    '.gif': CAT_IMAGE,
-    '.mp4': CAT_VIDEO,
-    '.mkv': CAT_VIDEO,
-    '.flv': CAT_VIDEO,
-    '.wmv': CAT_VIDEO,
-    '.mov': CAT_VIDEO,
-    '.ts': CAT_VIDEO,
-    '.flac': CAT_AUDIO,
-    '.rmvb': CAT_VIDEO,
+    '.mp3': MEDIATYPE_AUDIO,
+    '.wav': MEDIATYPE_AUDIO,
+    '.aac': MEDIATYPE_AUDIO,
+    '.ogg': MEDIATYPE_AUDIO,
+    '.wma': MEDIATYPE_AUDIO,
+    '.jpg': MEDIATYPE_IMAGE,
+    '.bmp': MEDIATYPE_IMAGE,
+    '.png': MEDIATYPE_IMAGE,
+    '.gif': MEDIATYPE_IMAGE,
+    '.mp4': MEDIATYPE_VIDEO,
+    '.mkv': MEDIATYPE_VIDEO,
+    '.flv': MEDIATYPE_VIDEO,
+    '.wmv': MEDIATYPE_VIDEO,
+    '.mov': MEDIATYPE_VIDEO,
+    '.ts': MEDIATYPE_VIDEO,
+    '.flac': MEDIATYPE_AUDIO,
+    '.rmvb': MEDIATYPE_VIDEO,
+    '.webm': MEDIATYPE_VIDEO,
 }
 
 
@@ -92,12 +93,12 @@ class UnsupportedConversion(ValueError):
 
 
 def check_conversion(inext, outext):
-    incat = known_extensions.get(inext)
-    outcat = known_extensions.get(outext)
-    if incat and outcat and incat == outcat:
-        return incat, outcat
-    if incat == CAT_VIDEO and outcat == CAT_AUDIO:
-        return incat, outcat
+    inmt = known_extensions.get(inext)
+    outmt = known_extensions.get(outext)
+    if inmt and outmt and inmt == outmt:
+        return inmt, outmt
+    if inmt == MEDIATYPE_VIDEO and outmt == MEDIATYPE_AUDIO:
+        return inmt, outmt
     msg = '{} => {}'.format(inext, outext)
     raise UnsupportedConversion(msg)
 
@@ -112,9 +113,9 @@ def convert_a_file(path, ns):
 
     if outext == '.mp4':
         cod = mkcod_convert_to_mp4(path, outpath)
-    elif outcat == CAT_AUDIO:
+    elif outcat == MEDIATYPE_AUDIO:
         cod = mkcod_convert_to_audio(path, outpath)
-    elif incat == CAT_IMAGE and outcat == CAT_IMAGE:
+    elif incat == MEDIATYPE_IMAGE and outcat == MEDIATYPE_IMAGE:
         cod = mkcod_image_convert(path, outpath)
     else:
         cod = mkcod_convert(path, outpath)

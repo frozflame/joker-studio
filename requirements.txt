@@ -1,6 +1,7 @@
 imagehash
 joker
 joker-cast>=0.3
+joker-stream
 numpy
 pillow
 pymediainfo

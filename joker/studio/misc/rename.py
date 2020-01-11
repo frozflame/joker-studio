@@ -3,7 +3,6 @@
 
 import argparse
 import datetime
-import hashlib
 import itertools
 import os
 import pathlib
@@ -12,6 +11,7 @@ import shlex
 from functools import lru_cache, partial
 from subprocess import PIPE
 
+from joker.stream.utils import checksum
 from joker.studio.aux import utils
 from joker.studio.aux.utils import format_help_section
 from joker.studio.ffmpeg.thumb import mkcod_video_thumbnail
@@ -24,14 +24,7 @@ def get_xinfo(path):
 
 
 def compute_hash(px, algo='md5'):
-    chunksize = 1024
-    hashfunc = hashlib.new(algo)
-    with open(px, 'rb') as fin:
-        chunk = fin.read(chunksize)
-        while chunk:
-            hashfunc.update(chunk)
-            chunk = fin.read(chunksize)
-    return hashfunc.hexdigest()
+    return checksum(px, algo=algo).hexdigest()
 
 
 def compute_image_hash(px):

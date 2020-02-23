@@ -106,10 +106,12 @@ def check_conversion(inext, outext):
 def convert_a_file(path, ns):
     px = pathlib.Path(path)
     outext = ('.' + ns.fmt).replace('..', '.')
+    if path.endswith(outext):
+        outext = '.conv' + outext
 
     # cat for category
     incat, outcat = check_conversion(px.suffix, outext)
-    outpath = str(px.with_suffix('.conv' + outext))
+    outpath = str(px.with_suffix(outext))
 
     if outext == '.mp4':
         cod = mkcod_convert_to_mp4(path, outpath)

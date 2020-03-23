@@ -26,6 +26,7 @@ class MediaSplitter(object):
         self.duration = math.ceil(self.xinfo.get_duration())
 
     def _fmt_label(self, startpos, precise=True):
+        startpos = int(startpos)
         m, s = divmod(startpos, 60)
         h, m = divmod(m, 60)
         hh = '{:02}'.format(h) if self.duration >= 3600 else ''
@@ -61,12 +62,14 @@ class MediaSplitter(object):
             positions.insert(0, 0)
         if positions[-1] < self.duration:
             positions.append(self.duration)
-        pairs = zip(positions[:-1], positions[1:])
+        pairs = [(a, b - a) for a, b in zip(positions[:-1], positions[1:])]
         return self.split(pairs)
 
     def silence_split(self):
-        from joker.studio.fuzzy.silences import find_silences
-        return self.custom_split(find_silences(self.path))
+        from joker.studio.alpha.audio import AudioEnergySeries
+        aes = AudioEnergySeries.from_file(self.path)
+        positions = aes.find_silences()
+        return self.custom_split(positions)
 
 
 def run(prog=None, args=None):

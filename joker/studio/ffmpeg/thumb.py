@@ -44,7 +44,7 @@ def mkcod_video_thumbnail(path, outpath, tspan, count=None, size=None):
     if outpath == '-':
         cod['vcodec'] = 'png'
         cod['f'] = 'image2pipe'
-    elif count != 1 and '%' not in outpath:
+    elif count != 1 and '%' not in str(outpath):
         pm, ext = os.path.splitext(outpath)
         outpath = pm + '.Thumb_%04d' + ext
     return cod('ffmpeg', outpath)
@@ -52,7 +52,7 @@ def mkcod_video_thumbnail(path, outpath, tspan, count=None, size=None):
 
 def make_poster(path, ns):
     bx = os.path.splitext(path)
-    outpath = bx[0] + '.' + ns.fmt
+    outpath = bx[0] + '.' + ns.format
     cod = mkcod_video_poster(path, outpath, 1)
     cod.run(ns.dry)
 
@@ -103,9 +103,9 @@ def thumb(prog=None, args=None):
         '-l', '--label', help='output file label')
 
     parser.add_argument(
-        'paths', metavar='PATH', nargs='+', help='an audio file')
+        'paths', metavar='PATH', nargs='+', help='an video file')
 
     ns = parser.parse_args(args)
     for p in ns.paths:
-        make_poster(p, ns)
+        make_thumbnails(p, ns)
 

@@ -4,7 +4,7 @@
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 # CAUTION:
 # Do NOT import your package from your setup.py
@@ -48,10 +48,12 @@ config = {
     'author': 'anonym',
     'author_email': 'anonym@example.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_packages(exclude=['test_*']),
+    'packages': find_namespace_packages(include=['joker.studio']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
-    'entry_points': {'console_scripts': ['dio=joker.studio.main:registry']},
+    'entry_points': {
+        'console_scripts': ['dio = joker.studio.main:registry']
+    },
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
@@ -59,6 +61,9 @@ config = {
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     # ensure copy static file to runtime directory
     'include_package_data': True,

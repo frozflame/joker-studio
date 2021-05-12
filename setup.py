@@ -52,7 +52,7 @@ config = {
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'entry_points': {
-        'console_scripts': ['dio = joker.studio.main:registry']
+        'console_scripts': ['dio = joker.studio.__main__:registry']
     },
     'classifiers': [
         'Programming Language :: Python',

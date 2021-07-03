@@ -9,8 +9,8 @@ from setuptools import setup, find_namespace_packages
 # CAUTION:
 # Do NOT import your package from your setup.py
 
-nsp_name = 'joker'
-pkg_name = 'studio'
+_nsp = 'joker'
+_pkg = 'studio'
 project_name = 'joker-studio'
 description = 'CLI tools for media file editing, wrapping FFmpeg and others'
 
@@ -21,10 +21,10 @@ def read(filename):
 
 
 def version_find():
-    if nsp_name:
-        path = '{}/{}/__init__.py'.format(nsp_name, pkg_name)
+    if _nsp:
+        path = '{}/{}/__init__.py'.format(_nsp, _pkg)
     else:
-        path = '{}/__init__.py'.format(pkg_name)
+        path = '{}/__init__.py'.format(_pkg)
     root = os.path.dirname(__file__)
     path = os.path.join(root, path)
     regex = re.compile(
@@ -72,8 +72,8 @@ config = {
     'long_description_content_type': "text/markdown",
 }
 
-if nsp_name:
+if _nsp:
     config['name'] = project_name,
-    config['namespace_packages'] = [nsp_name]
+    config['namespace_packages'] = [_nsp]
 
 setup(**config)

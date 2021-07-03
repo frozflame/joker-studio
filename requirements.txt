@@ -6,4 +6,4 @@ numpy
 pillow
 pymediainfo
 scipy
-volkanic>=0.2.7
+volkanic>=0.3.3

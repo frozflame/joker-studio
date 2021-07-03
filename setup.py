@@ -9,8 +9,9 @@ from setuptools import setup, find_namespace_packages
 # CAUTION:
 # Do NOT import your package from your setup.py
 
-namespace = 'joker'
-package_name = 'studio'
+nsp_name = 'joker'
+pkg_name = 'studio'
+project_name = 'joker-studio'
 description = 'CLI tools for media file editing, wrapping FFmpeg and others'
 
 
@@ -20,10 +21,10 @@ def read(filename):
 
 
 def version_find():
-    if namespace:
-        path = '{}/{}/__init__.py'.format(namespace, package_name)
+    if nsp_name:
+        path = '{}/{}/__init__.py'.format(nsp_name, pkg_name)
     else:
-        path = '{}/__init__.py'.format(package_name)
+        path = '{}/__init__.py'.format(pkg_name)
     root = os.path.dirname(__file__)
     path = os.path.join(root, path)
     regex = re.compile(
@@ -40,15 +41,15 @@ def version_find():
 
 
 config = {
-    'name': package_name,
+    'name': project_name,
     'version': version_find(),
-    'description': '' + description,
+    'description': description,
     'keywords': '',
     'url': 'https://github.com/frozflame/joker-studio',
     'author': 'anonym',
     'author_email': 'anonym@example.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_namespace_packages(include=['joker.studio']),
+    'packages': find_namespace_packages(include=['joker.*']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'entry_points': {
@@ -71,8 +72,8 @@ config = {
     'long_description_content_type': "text/markdown",
 }
 
-if namespace:
-    config['name'] = '{}-{}'.format(namespace, package_name)
-    config['namespace_packages'] = [namespace]
+if nsp_name:
+    config['name'] = project_name,
+    config['namespace_packages'] = [nsp_name]
 
 setup(**config)

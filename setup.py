@@ -73,7 +73,7 @@ config = {
 }
 
 if _nsp:
-    config['name'] = project_name,
+    config['name'] = project_name
     config['namespace_packages'] = [_nsp]
 
 setup(**config)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-from volkanic.system import CommandRegistry
+from volkanic.cmdline import CommandRegistry
 
 cmddef = """\
 conv        joker.studio.ffmpeg.conv

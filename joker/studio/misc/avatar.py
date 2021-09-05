@@ -142,3 +142,27 @@ def mkimb(prog=None, args=None):
         print(si.pycode(ns.width))
     elif ns.style == 'html':
         print(si.html_tag())
+
+
+def _average(nums):
+    return sum(nums) / len(nums)
+
+
+def report_wh_ratios(_, args: list):
+    from joker.studio.aux.info import MediaInfo
+    ratios = []
+    widths = []
+    heights = []
+    for path in args:
+        xinfo = MediaInfo(path)
+        w = xinfo.image.width
+        h = xinfo.image.height
+        r = w / h
+        print('{:.03f}'.format(r), w, h, path)
+        ratios.append(r)
+        widths.append(w)
+        heights.append(h)
+    avg_r = _average(ratios)
+    avg_w = int(_average(widths))
+    avg_h = int(_average(heights))
+    print('{:.03f}'.format(avg_r), avg_w, avg_h, '<avg>')

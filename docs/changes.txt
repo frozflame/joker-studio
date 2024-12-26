@@ -1,9 +1,12 @@
 Changes of joker-studio
-==========================
+-----------------------
 
-#### 0.1
+ver 0.2.0
+* require python >= 3.9
+* versions specified in requirement.txt
+
+ver 0.1
 * add subcommands ren, imb, avatar, sub, etc. 
 
-#### 0.0.1
+ver 0.0.1
 * split with either step or num of segments
-

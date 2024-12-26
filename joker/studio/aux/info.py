@@ -6,6 +6,7 @@ class MediaInfo(object):
     def __init__(self, path):
         # pymediainfo is slow to import, 600ms+
         import pymediainfo
+
         self.path = str(path)
         self.minfo = pymediainfo.MediaInfo.parse(path)
 
@@ -17,26 +18,26 @@ class MediaInfo(object):
     def get_track(self, track_type):
         tracks = self.find_tracks(track_type)
         if not tracks:
-            raise ValueError('no {} track found'.format(track_type))
+            raise ValueError("no {} track found".format(track_type))
         if len(tracks) > 1:
-            raise ValueError('multiple {} tracks found'.format(track_type))
+            raise ValueError("multiple {} tracks found".format(track_type))
         return tracks[0]
 
     @property
     def video(self):
-        return self.get_track('video')
+        return self.get_track("video")
 
     @property
     def audio(self):
-        return self.get_track('audio')
+        return self.get_track("audio")
 
     @property
     def image(self):
-        return self.get_track('image')
+        return self.get_track("image")
 
     @property
     def general(self):
-        return self.get_track('general')
+        return self.get_track("general")
 
     def get_audio_duration(self):
         return float(self.audio.duration) / 1000
@@ -45,14 +46,14 @@ class MediaInfo(object):
         return float(self.video.duration) / 1000
 
     def get_size(self):
-        tracks = self.find_tracks('Video') + self.find_tracks('Image')
+        tracks = self.find_tracks("Video") + self.find_tracks("Image")
         if not tracks:
             return None, None
         tr = tracks[0]
         return tr.width, tr.height
 
     def get_duration(self):
-        tracks = self.find_tracks('Video') + self.find_tracks('Audio')
+        tracks = self.find_tracks("Video") + self.find_tracks("Audio")
         if not tracks:
             return None
         tr = tracks[0]

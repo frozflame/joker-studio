@@ -11,29 +11,32 @@ STDMAX = 3
 
 
 def get_corner_size(arr):
-    n = sum(arr.shape[:2]) / 8.
-    return int(n ** .5)
+    n = sum(arr.shape[:2]) / 8.0
+    return int(n**0.5)
 
 
 class MarginDetection(object):
     def __init__(self, img, stdmax=STDMAX):
-        self.img = img.convert('RGB')
-        self.arr = numpy.asarray(self.img).astype('uint32')
+        self.img = img.convert("RGB")
+        self.arr = numpy.asarray(self.img).astype("uint32")
         self.maxstd = stdmax
         n = get_corner_size(self.arr)
         _sli_head = slice(None, n)
         _sli_tail = slice(-n, None)
-        corner_pixels = numpy.stack((
-            self.arr[_sli_head, _sli_head, :],
-            self.arr[_sli_head, _sli_tail, :],
-            self.arr[_sli_tail, _sli_tail, :],
-            self.arr[_sli_head, _sli_tail, :],
-        ), axis=0).reshape(-1, 3)
+        corner_pixels = numpy.stack(
+            (
+                self.arr[_sli_head, _sli_head, :],
+                self.arr[_sli_head, _sli_tail, :],
+                self.arr[_sli_tail, _sli_tail, :],
+                self.arr[_sli_head, _sli_tail, :],
+            ),
+            axis=0,
+        ).reshape(-1, 3)
         # printerr(corner_pixels.shape)
         # raise ValueError
 
         if not self._check_std(corner_pixels):
-            raise ValueError('standard variance is too large')
+            raise ValueError("standard variance is too large")
 
         arr = self.arr
         yi = self._measure(arr, corner_pixels)
@@ -77,7 +80,7 @@ class MarginDetection(object):
 def _backup(path):
     px = pathlib.Path(path)
     for i in range(100):
-        tag = '.ORIG-{:02}'.format(i)
+        tag = ".ORIG-{:02}".format(i)
         px_bak = px.with_suffix(tag + px.suffix)
         if not px_bak.exists():
             return px.rename(px_bak)
@@ -90,18 +93,21 @@ def margin_crop(path, stdmax, backup=True):
 
 
 def run(prog=None, args=None):
-    desc = 'Crop images with homogeneously colored margins '
+    desc = "Crop images with homogeneously colored margins "
     pr = argparse.ArgumentParser(prog=prog, description=desc)
-    pr.add_argument('-s', '--stdmax', default=STDMAX, type=int,
-                    help='maximum standard deviation')
-    pr.add_argument('-B', '--no-backup', action='store_true',
-                    help='do NOT backup original file')
-    pr.add_argument('files', nargs='*', metavar='PATH',
-                    help='paths to files to be cropped')
+    pr.add_argument(
+        "-s", "--stdmax", default=STDMAX, type=int, help="maximum standard deviation"
+    )
+    pr.add_argument(
+        "-B", "--no-backup", action="store_true", help="do NOT backup original file"
+    )
+    pr.add_argument(
+        "files", nargs="*", metavar="PATH", help="paths to files to be cropped"
+    )
     ns = pr.parse_args(args)
     for path in ns.files:
         try:
             margin_crop(path, ns.stdmax, not ns.no_backup)
         except Exception as e:
-            printerr('Failed:', path, '--', e)
+            printerr("Failed:", path, "--", e)
             continue

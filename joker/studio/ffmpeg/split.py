@@ -12,9 +12,9 @@ from joker.studio.aux.info import MediaInfo
 def _labelfunc(startpos, duration, step):
     m, s = divmod(startpos, 60)
     h, m = divmod(m, 60)
-    hh = '{:02}'.format(h) if duration >= 3600 else ''
-    mm = '{:02}'.format(m)
-    ss = '{:02}'.format(s) if step % 60 else 'M'
+    hh = "{:02}".format(h) if duration >= 3600 else ""
+    mm = "{:02}".format(m)
+    ss = "{:02}".format(s) if step % 60 else "M"
     return hh + mm + ss
 
 
@@ -29,25 +29,27 @@ class MediaSplitter(object):
         startpos = int(startpos)
         m, s = divmod(startpos, 60)
         h, m = divmod(m, 60)
-        hh = '{:02}'.format(h) if self.duration >= 3600 else ''
-        mm = '{:02}'.format(m)
-        ss = '{:02}'.format(s) if precise else 'M'
+        hh = "{:02}".format(h) if self.duration >= 3600 else ""
+        mm = "{:02}".format(m)
+        ss = "{:02}".format(s) if precise else "M"
         return hh + mm + ss
 
     def split(self, position_pairs):
         position_pairs = list(position_pairs)
         precise = any(pair[0] % 60 for pair in position_pairs)
         for start, length in position_pairs:
-            cod = utils.CommandOptionDict([
-                ('i', self.px),
-                ('ss', start),
-                ('t', length),
-                ('c:v', 'copy'),
-                ('c:a', 'copy'),
-            ])
-            label = '.SPLIT-' + self._fmt_label(start, precise)
+            cod = utils.CommandOptionDict(
+                [
+                    ("i", self.px),
+                    ("ss", start),
+                    ("t", length),
+                    ("c:v", "copy"),
+                    ("c:a", "copy"),
+                ]
+            )
+            label = ".SPLIT-" + self._fmt_label(start, precise)
             px_out = self.px.with_suffix(label + self.px.suffix)
-            yield cod('ffmpeg', px_out)
+            yield cod("ffmpeg", px_out)
 
     def uniform_split(self, step):
         # step = duration / num if num else ns.step
@@ -67,31 +69,40 @@ class MediaSplitter(object):
 
     def silence_split(self):
         from joker.studio.alpha.audio import AudioEnergySeries
+
         aes = AudioEnergySeries.from_file(self.path)
         positions = aes.find_silences()
         return self.custom_split(positions)
 
 
 def run(prog=None, args=None):
-    desc = 'Split a video uniformly or at specified positions'
+    desc = "Split a video uniformly or at specified positions"
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     utils.add_dry_option(parser)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        '-n', '--num', type=int, metavar='INT',
-        help='number of segments to split into')
+        "-n", "--num", type=int, metavar="INT", help="number of segments to split into"
+    )
     group.add_argument(
-        '-s', '--step', type=int, default=240, metavar='INT',
-        help='length of each segment, in second')
+        "-s",
+        "--step",
+        type=int,
+        default=240,
+        metavar="INT",
+        help="length of each segment, in second",
+    )
     group.add_argument(
-        '-p', '--positions', type=int, nargs='+',
-        metavar='INT', help='positions of splits')
-    group.add_argument(
-        '-q', '--silence', action='store_true',
-        help='split on silences')
+        "-p",
+        "--positions",
+        type=int,
+        nargs="+",
+        metavar="INT",
+        help="positions of splits",
+    )
+    group.add_argument("-q", "--silence", action="store_true", help="split on silences")
 
-    parser.add_argument('path', help='a video or audio file')
+    parser.add_argument("path", help="a video or audio file")
     ns = parser.parse_args(args)
     mspl = MediaSplitter(ns.path)
     if ns.silence:
@@ -105,5 +116,5 @@ def run(prog=None, args=None):
         cod.run(ns.dry)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

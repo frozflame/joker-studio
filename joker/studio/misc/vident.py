@@ -16,8 +16,8 @@ from joker.studio.misc.rename import compute_video_hash
 
 
 class VideoIdentifier(object):
-    version = 'vid4_'
-    __slots__ = ['duration', 'vhash', 'w', 'h']
+    version = "vid4_"
+    __slots__ = ["duration", "vhash", "w", "h"]
 
     def __init__(self, duration, vhash, width, height):
         self.duration = duration
@@ -26,24 +26,24 @@ class VideoIdentifier(object):
         self.h = int(height)
 
     def __str__(self):
-        return '{}-{}x{}'.format(self.unikey, self.w, self.h)
+        return "{}-{}x{}".format(self.unikey, self.w, self.h)
 
     @property
     def unikey(self):
         ds = sexagesimal_format(int(self.duration))
-        ds = ds.rjust(3, '0')
-        return self.version + '{}_{}'.format(ds, self.vhash)
+        ds = ds.rjust(3, "0")
+        return self.version + "{}_{}".format(ds, self.vhash)
 
     @classmethod
     def get_regex(cls):
-        p = '^' + VideoIdentifier.version
-        return re.compile(p + r'([0-9a-yA-Y]{,4})_([0-9A-Z]{,80})-(\d+)x(\d+)')
+        p = "^" + VideoIdentifier.version
+        return re.compile(p + r"([0-9a-yA-Y]{,4})_([0-9A-Z]{,80})-(\d+)x(\d+)")
 
     @classmethod
     def parse(cls, string):
         mat = cls.get_regex().match(string)
         if mat is None:
-            msg = 'bad identifier string: {}'.format(repr(string))
+            msg = "bad identifier string: {}".format(repr(string))
             raise ValueError(msg)
         ds, fc, w, h = mat.groups()
         return cls(sexagesimal_parse(ds), fc, w, h)
@@ -60,11 +60,11 @@ class VideoIdentifier(object):
     def make_name(cls, path):
         dir_, name = os.path.split(path)
         if name.startswith(cls.version):
-            vident = cls.parse(name.split('.')[0])
+            vident = cls.parse(name.split(".")[0])
             return vident, path
 
         vident = cls.from_name(path)
-        new_name = '{}.{}'.format(vident, proper_filename(name))
+        new_name = "{}.{}".format(vident, proper_filename(name))
         new_path = os.path.join(dir_, new_name)
         return vident, new_path
 
@@ -72,13 +72,13 @@ class VideoIdentifier(object):
     def rename(cls, path):
         vident, new_path = cls.make_name(path)
         if new_path != path:
-            print('new_path:', new_path, file=sys.stderr)
+            print("new_path:", new_path, file=sys.stderr)
             os.rename(path, new_path)
         return vident, new_path
 
 
 def p_filter_by_extension(paths):
-    extensions = {'.mp4', '.ts', '.mkv'}
+    extensions = {".mp4", ".ts", ".mkv"}
     _splitext = os.path.splitext
     return [p for p in paths if _splitext(p)[1] in extensions]
 
@@ -91,18 +91,18 @@ def p_filter_by_prefix(paths):
 
 def keyfunc(pair):
     vi, path = pair
-    return vi.w, path.endswith('.mp4')
+    return vi.w, path.endswith(".mp4")
 
 
 def show(paths):
     for path in paths:
         try:
             vi = VideoIdentifier.from_name(path)
-            print(vi, path, sep='\t')
+            print(vi, path, sep="\t")
         except Exception as e:
             # printerr(e)
             traceback.print_exc()
-            printerr('bad file:', path)
+            printerr("bad file:", path)
 
 
 def add_vident_prefix(paths):
@@ -112,7 +112,7 @@ def add_vident_prefix(paths):
             vi, path = VideoIdentifier.rename(path)
         except ValueError:
             traceback.print_exc()
-            printerr('bad file:', path)
+            printerr("bad file:", path)
             continue
         groups[vi.unikey].append((vi, path))
 
@@ -120,9 +120,9 @@ def add_vident_prefix(paths):
         if len(pairs) < 2:
             continue
         pairs.sort(key=keyfunc, reverse=True)
-        print('\n#    ', pairs[0][1])
+        print("\n#    ", pairs[0][1])
         for _, path in pairs[1:]:
-            print('rm -f', path)
+            print("rm -f", path)
 
 
 def remove_vident_prefix(paths):
@@ -130,32 +130,34 @@ def remove_vident_prefix(paths):
     for path in p_filter_by_prefix(paths):
         dir_, name = os.path.split(path)
         regex = VideoIdentifier.get_regex()
-        new_name = regex.sub('', name)
-        if new_name.startswith('.'):
+        new_name = regex.sub("", name)
+        if new_name.startswith("."):
             new_name = new_name[1:]
         new_path = os.path.join(dir_, new_name)
         if new_name and not os.path.exists(new_path):
             os.rename(path, new_path)
         else:
-            printerr('cannot rename:')
+            printerr("cannot rename:")
             printerr(' from "{}"'.format(path))
             printerr('   to "{}"'.format(new_path))
 
 
 def run(prog=None, args=None):
-    desc = 'rename video files by adding or removing video identifier'
+    desc = "rename video files by adding or removing video identifier"
     parser = argparse.ArgumentParser(prog=prog, description=desc)
 
     # mutually exclusive
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        '-a', '--add-prefix', action='store_true',
-        help='rename with vident prefix')
+        "-a", "--add-prefix", action="store_true", help="rename with vident prefix"
+    )
     group.add_argument(
-        '-r', '--remove-prefix', action='store_true',
-        help='rename with vident prefix removed')
-    parser.add_argument(
-        'paths', metavar='PATH', nargs='+', help='files')
+        "-r",
+        "--remove-prefix",
+        action="store_true",
+        help="rename with vident prefix removed",
+    )
+    parser.add_argument("paths", metavar="PATH", nargs="+", help="files")
     ns = parser.parse_args(args)
     if ns.add_prefix:
         add_vident_prefix(ns.paths)
@@ -165,5 +167,5 @@ def run(prog=None, args=None):
         show(ns.paths)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

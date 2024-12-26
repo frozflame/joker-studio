@@ -20,8 +20,8 @@ ren         joker.studio.misc.rename
 vid         joker.studio.misc.vident
 """
 
-_prog = 'python3 -m joker.sudio'
+_prog = "python3 -m joker.sudio"
 registry = CommandRegistry.from_cmddef(cmddef, _prog)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     registry()

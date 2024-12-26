@@ -11,54 +11,60 @@ from joker.studio.aux import utils
 
 
 def mkcod_video_poster(path, outpath, pos):
-    cod = utils.CommandOptionDict([
-        ('i', path),
-        ('ss', pos),
-        ('vframes', 1),
-    ])
-    return cod('ffmpeg', outpath)
+    cod = utils.CommandOptionDict(
+        [
+            ("i", path),
+            ("ss", pos),
+            ("vframes", 1),
+        ]
+    )
+    return cod("ffmpeg", outpath)
 
 
 def mkcod_pipe_thumbnail(path, pos, w, h):
-    cod = utils.CommandOptionDict([
-        ('i', path),
-        ('ss', pos),
-        ('vframes', 1),
-        ('vcodec', 'png'),
-        ('f', 'image2pipe'),
-        ('s', '{}x{}'.format(w, h))
-    ])
-    return cod('ffmpeg', '-')
+    cod = utils.CommandOptionDict(
+        [
+            ("i", path),
+            ("ss", pos),
+            ("vframes", 1),
+            ("vcodec", "png"),
+            ("f", "image2pipe"),
+            ("s", "{}x{}".format(w, h)),
+        ]
+    )
+    return cod("ffmpeg", "-")
 
 
 def mkcod_video_thumbnail(path, outpath, tspan, count=None, size=None):
     fps = 1 / float(tspan)
-    cod = utils.CommandOptionDict([
-        ('i', path),
-        ('vf', 'fps={}'.format(fps)),
-    ])
+    cod = utils.CommandOptionDict(
+        [
+            ("i", path),
+            ("vf", "fps={}".format(fps)),
+        ]
+    )
     if count is not None:
-        cod['vframes'] = count
+        cod["vframes"] = count
     if size is not None:
-        cod['s'] = '{}x{}'.format(*size)
-    if outpath == '-':
-        cod['vcodec'] = 'png'
-        cod['f'] = 'image2pipe'
-    elif count != 1 and '%' not in str(outpath):
+        cod["s"] = "{}x{}".format(*size)
+    if outpath == "-":
+        cod["vcodec"] = "png"
+        cod["f"] = "image2pipe"
+    elif count != 1 and "%" not in str(outpath):
         pm, ext = os.path.splitext(outpath)
-        outpath = pm + '.Thumb_%04d' + ext
-    return cod('ffmpeg', outpath)
+        outpath = pm + ".Thumb_%04d" + ext
+    return cod("ffmpeg", outpath)
 
 
 def make_poster(path, ns):
     bx = os.path.splitext(path)
-    outpath = bx[0] + '.' + ns.format
+    outpath = bx[0] + "." + ns.format
     cod = mkcod_video_poster(path, outpath, 1)
     cod.run(ns.dry)
 
 
 def make_thumbnails(path, ns):
-    ext = ('.' + ns.format).replace('..', '.')
+    ext = ("." + ns.format).replace("..", ".")
     px = pathlib.Path(path)
     outpath = px.with_suffix(ext)
     cod = mkcod_video_thumbnail(path, outpath, ns.tspan)
@@ -66,46 +72,51 @@ def make_thumbnails(path, ns):
 
 
 def poster(prog=None, args=None):
-    desc = 'generate poster images from videos'
+    desc = "generate poster images from videos"
     parser = argparse.ArgumentParser(prog=prog, description=desc)
     parser.add_argument(
-        '-f', '--format', dest='fmt', choices=['png', 'jpg'],
-        default='jpg', help='out image format')
+        "-f",
+        "--format",
+        dest="fmt",
+        choices=["png", "jpg"],
+        default="jpg",
+        help="out image format",
+    )
 
     parser.add_argument(
-        '--dry', action='store_true',
-        help='print ffmpeg command but do not execute it')
+        "--dry", action="store_true", help="print ffmpeg command but do not execute it"
+    )
 
-    parser.add_argument(
-        'paths', metavar='PATH', nargs='+', help='an audio/video file')
+    parser.add_argument("paths", metavar="PATH", nargs="+", help="an audio/video file")
     ns = parser.parse_args(args)
     for p in ns.paths:
         try:
             make_poster(p, ns)
         except Exception as e:
-            printerr('path:', p)
+            printerr("path:", p)
             printerr(e)
 
 
 def thumb(prog=None, args=None):
-    desc = 'Generate thumbnail images from a video'
+    desc = "Generate thumbnail images from a video"
     parser = argparse.ArgumentParser(prog=prog, description=desc)
+    # TODO: ExtendedArgumentParser?
     utils.add_dry_option(parser)
 
     parser.add_argument(
-        '-t', '--tspan', type=int, default=60,
-        help='time span between each image, in second')
+        "-t",
+        "--tspan",
+        type=int,
+        default=60,
+        help="time span between each image, in second",
+    )
 
-    parser.add_argument(
-        '-f', '--format', default='jpg', help='output image format')
+    parser.add_argument("-f", "--format", default="jpg", help="output image format")
 
-    parser.add_argument(
-        '-l', '--label', help='output file label')
+    parser.add_argument("-l", "--label", help="output file label")
 
-    parser.add_argument(
-        'paths', metavar='PATH', nargs='+', help='an video file')
+    parser.add_argument("paths", metavar="PATH", nargs="+", help="an video file")
 
     ns = parser.parse_args(args)
     for p in ns.paths:
         make_thumbnails(p, ns)
-

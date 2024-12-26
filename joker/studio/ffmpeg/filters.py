@@ -8,15 +8,15 @@ def vf_crop(width, height, *margins):
     top, right, bottom, left = rel_shorthand(width, height, *margins)
     ow = width - left - right
     oh = height - top - bottom
-    return 'crop={}:{}:{}:{}'.format(ow, oh, left, top)
+    return "crop={}:{}:{}:{}".format(ow, oh, left, top)
 
 
 def vf_subtitle(path, styles):
     if not styles:
-        return 'subtitles=' + path
+        return "subtitles=" + path
     if isinstance(styles, dict):
         styles = styles.items()
-    stl = ','.join('{}={}'.format(*p) for p in styles)
+    stl = ",".join("{}={}".format(*p) for p in styles)
     return "subtitles={}:force_style='{}'".format(path, stl)
 
 
@@ -31,10 +31,10 @@ def af_fade(cutin, cutout, fadein, fadeout):
     :return: (str) ffmpeg audio filter string
     """
     a = cutin, fadein, cutout - fadeout, fadeout
-    return 'afade=t=in:st={}:d={},afade=t=out:st={}:d={}'.format(*a)
+    return "afade=t=in:st={}:d={},afade=t=out:st={}:d={}".format(*a)
 
 
-def vf_fade(cutin, cutout, fadein, fadeout, color='black'):
+def vf_fade(cutin, cutout, fadein, fadeout, color="black"):
     """
     Genterate FFmpeg video fade filter string
     https://ffmpeg.org/ffmpeg-filters.html#fade
@@ -46,4 +46,4 @@ def vf_fade(cutin, cutout, fadein, fadeout, color='black'):
     :return: (str) ffmpeg video filter string
     """
     a = cutin, fadein, color, cutout - fadeout, fadeout, color
-    return 'fade=t=in:st={}:d={}:c={},fade=t=out:st={}:d={}:c={}'.format(*a)
+    return "fade=t=in:st={}:d={}:c={},fade=t=out:st={}:d={}:c={}".format(*a)

@@ -1,6 +1,11 @@
 Changes of joker-studio
 -----------------------
 
+ver 0.2.1
+* add console_scripts name `joker-studio`
+* add sub-command `rotate`
+* add test_imports.py
+
 ver 0.2.0
 * require python >= 3.9
 * versions specified in requirement.txt

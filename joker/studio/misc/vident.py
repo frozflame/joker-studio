@@ -149,7 +149,10 @@ def run(prog=None, args=None):
     # mutually exclusive
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        "-a", "--add-prefix", action="store_true", help="rename with vident prefix"
+        "-a",
+        "--add-prefix",
+        action="store_true",
+        help="rename with vident prefix",
     )
     group.add_argument(
         "-r",

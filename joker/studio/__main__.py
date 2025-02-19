@@ -4,19 +4,20 @@
 from volkanic.cmdline import CommandRegistry
 
 cmddef = """\
+avatar      joker.studio.misc.avatar
 conv        joker.studio.ffmpeg.conv
 crop        joker.studio.ffmpeg.crop
 fade        joker.studio.ffmpeg.fade
+ico         joker.studio.misc.avatar:mkico
+imb         joker.studio.misc.avatar:mkimb
+imt         joker.studio.misc.margin
+iwh         joker.studio.misc.avatar:report_wh_ratios
+poster      joker.studio.ffmpeg.thumb:poster
+ren         joker.studio.misc.rename
+rotate      joker.studio.images.rotate:main
 split       joker.studio.ffmpeg.split
 sub         joker.studio.ffmpeg.subtitle
 thumb       joker.studio.ffmpeg.thumb:thumb
-poster      joker.studio.ffmpeg.thumb:poster
-avatar      joker.studio.misc.avatar
-ico         joker.studio.misc.avatar:mkico
-imb         joker.studio.misc.avatar:mkimb
-iwh         joker.studio.misc.avatar:report_wh_ratios
-imt         joker.studio.misc.margin
-ren         joker.studio.misc.rename
 vid         joker.studio.misc.vident
 """
 

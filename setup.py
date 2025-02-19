@@ -51,7 +51,12 @@ config = {
     "packages": find_namespace_packages(include=["joker.*"]),
     "zip_safe": False,
     "install_requires": read("requirements.txt"),
-    "entry_points": {"console_scripts": ["dio = joker.studio.__main__:registry"]},
+    "entry_points": {
+        "console_scripts": [
+            "dio = joker.studio.__main__:registry",
+            "joker-studio = joker.studio.__main__:registry",
+        ],
+    },
     "classifiers": [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

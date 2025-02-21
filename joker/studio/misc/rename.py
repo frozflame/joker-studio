@@ -11,7 +11,8 @@ import shlex
 from functools import lru_cache, partial
 from subprocess import PIPE
 
-from joker.stream.utils import checksum
+from joker.filesys.utils import checksum
+
 from joker.studio.aux import utils
 from joker.studio.aux.utils import format_help_section
 from joker.studio.ffmpeg.thumb import mkcod_video_thumbnail

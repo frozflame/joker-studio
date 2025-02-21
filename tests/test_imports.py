@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import importlib
 import json
-import re
 
 import setuptools
 from volkanic.introspect import find_all_plain_modules
-from volkanic.utils import printerr
 
 from joker.studio.environ import GlobalInterface
 

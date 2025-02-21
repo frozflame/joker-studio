@@ -21,7 +21,7 @@ thumb       joker.studio.ffmpeg.thumb:thumb
 vid         joker.studio.misc.vident
 """
 
-_prog = "python3 -m joker.sudio"
+_prog = "python3 -m joker.studio"
 registry = CommandRegistry.from_cmddef(cmddef, _prog)
 
 if __name__ == "__main__":

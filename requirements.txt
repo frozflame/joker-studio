@@ -1,5 +1,6 @@
 imagehash~=4.3.1
 joker-cast~=0.5.2
+joker-filesys~=0.4.1
 joker-stream~=0.5.0
 joker-textmanip
 joker~=0.3.3

@@ -2,6 +2,7 @@
 # coding: utf-8
 from __future__ import annotations
 
+import argparse
 import os
 import subprocess
 import sys
@@ -34,25 +35,50 @@ def _get_output_path(path: Pathlike):
     return path.with_stem(f"{path.stem}-{infix}")
 
 
-def rotate_image(path: Pathlike) -> Path | None:
+def rotate_image(path: Pathlike, overwrite=False) -> Path | None:
     degrees = infer_rotation_degrees(path)
     if not degrees:
         return None
-    outpath = _get_output_path(path)
-    cmd = [
-        "magick",
-        path,
-        "-rotate",
-        degrees,
-        outpath,
-    ]
+    if overwrite:
+        outpath = path
+        cmd = [
+            "magick",
+            "mogrify",
+            "-rotate",
+            degrees,
+            outpath,
+        ]
+    else:
+        outpath = _get_output_path(path)
+        cmd = [
+            "magick",
+            path,
+            "-rotate",
+            degrees,
+            outpath,
+        ]
     subprocess.run([str(s) for s in cmd])
     return outpath
 
 
-def main(_prog, args: list[str]):
+def main(prog, args: list[str]):
+    desc = "rotate images to correct orientation"
+    ap = argparse.ArgumentParser(prog=prog, description=desc)
+    ap.add_argument(
+        "-w",
+        "--overwrite",
+        action="store_true",
+        help="overwrite existing images",
+    )
+    ap.add_argument(
+        "files",
+        nargs="*",
+        help="paths to images",
+    )
+
+    ns = ap.parse_args(args)
     for path in args:
-        rotate_image(path)
+        rotate_image(path, overwrite=ns.overwrite)
 
 
 if __name__ == "__main__":
